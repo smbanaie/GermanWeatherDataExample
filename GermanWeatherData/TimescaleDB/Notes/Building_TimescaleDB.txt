@@ -1,0 +1,19 @@
+## Building TimescaleDB on Windows ##
+
+```
+git clone git@github.com:timescale/timescaledb.git
+
+cd timescaledb
+
+# Find the latest release and checkout, e.g. for 0.8.0:
+git checkout 1.0.0
+
+# Bootstrap the build system
+bootstrap.bat
+
+# To build the extension from command line
+cmake --build ./build --config Release
+
+# To install
+cmake --build ./build --config Release --target install
+```
