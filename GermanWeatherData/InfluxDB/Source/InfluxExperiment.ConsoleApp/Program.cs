@@ -70,7 +70,7 @@ namespace InfluxExperiment.ConsoleApp
                         // Evaluate:
                         .ToList();
 
-                    var payload = Converters.Converters.Convert(validRecords);
+                    var payload = Converters.LocalWeatherDataConverter.Convert(validRecords);
 
                     // Finally write them with the Batch Writer:
                     processor.WriteAsync(payload).GetAwaiter().GetResult();
