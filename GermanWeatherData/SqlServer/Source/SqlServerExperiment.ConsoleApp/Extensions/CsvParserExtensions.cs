@@ -19,8 +19,11 @@ namespace SqlServerExperiment.ConsoleApp.Extensions
             }
 
             var lines = File
+                // Read in all lines:
                 .ReadLines(fileName, encoding)
+                // And index them all:
                 .Select((line, index) => new Row(index, line))
+                // But skip some of them:
                 .Skip(skip);
 
             return csvParser.Parse(lines);
