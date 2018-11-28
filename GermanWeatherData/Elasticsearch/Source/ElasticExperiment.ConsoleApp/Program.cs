@@ -31,6 +31,9 @@ namespace ElasticExperiment.ConsoleApp
             // Construct the Batch Processor:
             var client = new ElasticSearchClient<Elastic.Model.LocalWeatherData>(ConnectionString, "weather_data");
 
+            // Make Sure the weather_data Index we insert to exists:
+            client.CreateIndex();
+
             // Import 10 Minute CDC Weather Data:
             var csvWeatherDataFiles = GetFilesFromFolder(@"D:\datasets\CDC");
 
