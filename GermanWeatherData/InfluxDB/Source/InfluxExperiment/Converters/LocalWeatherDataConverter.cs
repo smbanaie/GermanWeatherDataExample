@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Threading.Tasks;
 using InfluxDB.LineProtocol.Payload;
 using InfluxExperiment.Csv.Model;
@@ -10,7 +11,7 @@ using CsvLocalWeatherDataType = InfluxExperiment.Csv.Model.LocalWeatherData;
 
 namespace InfluxExperiment.Converters
 {
-    public static class Converters
+    public static class LocalWeatherDataConverter
     {
             public static LineProtocolPayload Convert(IList<CsvLocalWeatherDataType> source)
             {
@@ -40,12 +41,16 @@ namespace InfluxExperiment.Converters
 
                 var fields = new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
-                    {"", "" }
+                    {"air_temperature_at_2m", source.AirTemperatureAt2m },
+                    {"air_temperature_at_5cm", source.AirTemperatureAt5cm },
+                    {"dew_point_temperature_at_2m", source.DewPointTemperatureAt2m },
+                    {"relative_humidity", source.RelativeHumidity },
                 });
 
                 var tags = new Dictionary<string, string>
                 {
-                    {"", ""}
+                    {"station_identifier", source.StationIdentifier},
+                    {"quality_code", source.QualityCode.ToString(CultureInfo.InvariantCulture)}
                 };
 
                 return new LineProtocolPoint("weather_measurement", fields, tags, source.TimeStamp);
