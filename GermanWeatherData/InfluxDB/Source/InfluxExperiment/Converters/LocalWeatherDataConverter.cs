@@ -6,8 +6,8 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading.Tasks;
 using InfluxDB.LineProtocol.Payload;
-using InfluxExperiment.Csv.Model;
-using CsvLocalWeatherDataType = InfluxExperiment.Csv.Model.LocalWeatherData;
+using Experiments.Common.Csv.Model;
+using CsvLocalWeatherDataType = Experiments.Common.Csv.Model.LocalWeatherData;
 
 namespace InfluxExperiment.Converters
 {

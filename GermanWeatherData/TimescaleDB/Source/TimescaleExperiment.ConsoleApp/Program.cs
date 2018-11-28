@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using TimescaleExperiment.ConsoleApp.Extensions;
-using TimescaleExperiment.Csv.Parser;
+using Experiments.Common.Csv.Extensions;
+using Experiments.Common.Csv.Parser;
 using TimescaleExperiment.Sql.Client;
 
 namespace TimescaleExperiment.ConsoleApp
@@ -15,7 +15,7 @@ namespace TimescaleExperiment.ConsoleApp
     public class Program
     {
         // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"Data Source=.\MSSQLSERVER2019;Integrated Security=true;Initial Catalog=GermanWeatherDatabase;";
+        private static readonly string ConnectionString = @"Data Source=.\MSSQLSERVER2017;Integrated Security=true;Initial Catalog=GermanWeatherDatabase;";
 
         public static void Main(string[] args)
         {

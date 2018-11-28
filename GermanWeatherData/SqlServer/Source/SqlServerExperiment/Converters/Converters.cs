@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using CsvLocalWeatherDataType = SqlServerExperiment.Csv.Model.LocalWeatherData;
+using CsvLocalWeatherDataType = Experiments.Common.Csv.Model.LocalWeatherData;
 using SqlLocalWeatherDataType = SqlServerExperiment.Sql.Model.LocalWeatherData;
 
-using CsvStationDataType = SqlServerExperiment.Csv.Model.Station;
+using CsvStationDataType = Experiments.Common.Csv.Model.Station;
 using SqlStationDataType = SqlServerExperiment.Sql.Model.Station;
 
 namespace SqlServerExperiment.Converters

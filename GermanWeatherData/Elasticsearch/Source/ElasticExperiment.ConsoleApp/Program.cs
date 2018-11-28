@@ -7,10 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using ElasticExperiment.ConsoleApp.Extensions;
 using ElasticExperiment.Converters;
-using ElasticExperiment.Csv.Parser;
 using ElasticExperiment.Elastic.Client;
+using Experiments.Common.Csv.Extensions;
+using Experiments.Common.Csv.Model;
+using Experiments.Common.Csv.Parser;
 
 namespace ElasticExperiment.ConsoleApp
 {
@@ -43,7 +44,7 @@ namespace ElasticExperiment.ConsoleApp
             }
         }
 
-        private static IList<Csv.Model.Station> GetStations(string csvStationDataFile)
+        private static IList<Station> GetStations(string csvStationDataFile)
         {
             return Parsers
                 .StationParser
@@ -55,7 +56,7 @@ namespace ElasticExperiment.ConsoleApp
 
         private static void ProcessLocalWeatherData(string csvFilePath, 
             ElasticSearchClient<Elastic.Model.LocalWeatherData> client, 
-            IDictionary<string, Csv.Model.Station> stations)
+            IDictionary<string, Station> stations)
         {
             Console.WriteLine($"Processing File: {csvFilePath}");
             

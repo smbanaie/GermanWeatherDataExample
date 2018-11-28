@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElasticExperiment", "Elasti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElasticExperiment.ConsoleApp", "ElasticExperiment.ConsoleApp\ElasticExperiment.ConsoleApp.csproj", "{3A79DEC2-B0AC-4788-B967-E2F3F2606D50}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experiments.Common", "..\..\Common\Experiments.Common\Experiments.Common.csproj", "{F208B780-1BF4-4F0E-BAC9-8E88A45888BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{3A79DEC2-B0AC-4788-B967-E2F3F2606D50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A79DEC2-B0AC-4788-B967-E2F3F2606D50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A79DEC2-B0AC-4788-B967-E2F3F2606D50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F208B780-1BF4-4F0E-BAC9-8E88A45888BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F208B780-1BF4-4F0E-BAC9-8E88A45888BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F208B780-1BF4-4F0E-BAC9-8E88A45888BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F208B780-1BF4-4F0E-BAC9-8E88A45888BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

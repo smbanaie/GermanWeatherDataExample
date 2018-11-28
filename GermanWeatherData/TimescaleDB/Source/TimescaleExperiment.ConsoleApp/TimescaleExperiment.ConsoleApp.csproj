@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>TimescaleExperiment.ConsoleApp</AssemblyName>
     <RootNamespace>TimescaleExperiment.ConsoleApp</RootNamespace>
   </PropertyGroup>
@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Experiments.Common\Experiments.Common.csproj" />
     <ProjectReference Include="..\TimescaleExperiment\TimescaleExperiment.csproj" />
   </ItemGroup>
 

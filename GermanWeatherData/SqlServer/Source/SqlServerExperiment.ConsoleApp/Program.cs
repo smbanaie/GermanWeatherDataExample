@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using SqlServerExperiment.ConsoleApp.Extensions;
-using SqlServerExperiment.Csv.Parser;
+using Experiments.Common.Csv.Extensions;
+using Experiments.Common.Csv.Parser;
 using SqlServerExperiment.Sql.Client;
 
 namespace SqlServerExperiment.ConsoleApp

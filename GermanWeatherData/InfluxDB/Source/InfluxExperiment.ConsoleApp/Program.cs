@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using InfluxExperiment.ConsoleApp.Extensions;
-using InfluxExperiment.Csv.Parser;
+using Experiments.Common.Csv.Extensions;
+using Experiments.Common.Csv.Parser;
 using InfluxExperiment.Influx.Client;
 
 namespace InfluxExperiment.ConsoleApp

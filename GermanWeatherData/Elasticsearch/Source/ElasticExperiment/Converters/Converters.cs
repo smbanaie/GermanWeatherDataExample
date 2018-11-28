@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using CsvStationType = ElasticExperiment.Csv.Model.Station;
-using CsvLocalWeatherDataType = ElasticExperiment.Csv.Model.LocalWeatherData;
+using CsvStationType = Experiments.Common.Csv.Model.Station;
+using CsvLocalWeatherDataType = Experiments.Common.Csv.Model.LocalWeatherData;
 
 using ElasticStationType = ElasticExperiment.Elastic.Model.Station;
 using ElasticLocalWeatherDataType = ElasticExperiment.Elastic.Model.LocalWeatherData;
