@@ -3,29 +3,38 @@
 :: Copyright (c) Philipp Wagner. All rights reserved.
 :: Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-set SQLCMD_EXECUTABLE="C:\Program Files\Microsoft SQL Server\110\Tools\Binn\SQLCMD.EXE"
+set PGSQL_EXECUTABLE="C:\Program Files\PostgreSQL\9.4\bin\psql.exe"
 set STDOUT=stdout.log
 set STDERR=stderr.log
 set LOGFILE=query_output.log
 
-set ServerName=.\MSSQLSERVER2019
-set DatabaseName=GermanWeatherDatabase
+set HostName=localhost
+set PortNumber=5432
+set DatabaseName=sampledb
+set UserName=philipp
+set Password=
 
-call :AskQuestionWithYdefault "Use Server (%ServerName%) [Y,n]?" reply_
+call :AskQuestionWithYdefault "Use Host (%HostName%) Port (%PortNumber%) [Y,n]?" reply_
 if /i [%reply_%] NEQ [y] (
-	set /p ServerName="Enter Server: "
+	set /p HostName="Enter HostName: "
+	set /p PortNumber="Enter Port: "
 )
 
 call :AskQuestionWithYdefault "Use Database (%DatabaseName%) [Y,n]?" reply_
 if /i [%reply_%] NEQ [y]  (
-	set /p DatabaseName="Enter Database: "
+	set /p ServerName="Enter Database: "
 )
+
+call :AskQuestionWithYdefault "Use User (%UserName%) [Y,n]?" reply_
+if /i [%reply_%] NEQ [y]  (
+	set /p UserName="Enter User: "
+)
+
+set /p PGPASSWORD="Password: "
 
 1>%STDOUT% 2>%STDERR% (
 
-	:: Database
-	%SQLCMD_EXECUTABLE% -S %ServerName% -i "create_database.sql" -v dbname=%DatabaseName% -o %LOGFILE%
-	
+	%PGSQL_EXECUTABLE% -h %HostName% -p %PortNumber% -d %DatabaseName% -U %UserName% < create_database.sql -L %LOGFILE%
 )
 
 goto :end
