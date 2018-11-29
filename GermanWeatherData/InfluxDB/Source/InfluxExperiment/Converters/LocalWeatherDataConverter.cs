@@ -14,53 +14,68 @@ namespace InfluxExperiment.Converters
 {
     public static class LocalWeatherDataConverter
     {
-            public static LineProtocolPayload Convert(IList<CsvLocalWeatherDataType> source)
+        public static LineProtocolPayload Convert(IList<CsvLocalWeatherDataType> source)
+        {
+            if (source == null)
             {
-                if (source == null)
-                {
-                    return null;
-                }
-
-                LineProtocolPayload payload = new LineProtocolPayload();
-
-                foreach (var item in source)
-                {
-                    var point = Convert(item);
-
-                    if (point != null)
-                    {
-                        payload.Add(point);
-                    }
-                }
-
-                return payload;
+                return null;
             }
 
-            public static LineProtocolPoint Convert(LocalWeatherData source)
+            LineProtocolPayload payload = new LineProtocolPayload();
+
+            foreach (var item in source)
             {
-                if (source == null)
+                var point = Convert(item);
+
+                if (point != null)
                 {
-                    return null;
+                    payload.Add(point);
                 }
+            }
 
-                var utcTimeStamp = DateTime.SpecifyKind(source.TimeStamp, DateTimeKind.Utc);
+            return payload;
+        }
 
-                var fields = new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
-                {
-                    {"air_temperature_at_2m", source.AirTemperatureAt2m },
-                    {"air_temperature_at_5cm", source.AirTemperatureAt5cm },
-                    {"dew_point_temperature_at_2m", source.DewPointTemperatureAt2m },
-                    {"relative_humidity", source.RelativeHumidity }
-                });
+        public static LineProtocolPoint Convert(LocalWeatherData source)
+        {
+            if (source == null)
+            {
+                return null;
+            }
 
-                var tags = new Dictionary<string, string>
+            var utcTimeStamp = DateTime.SpecifyKind(source.TimeStamp, DateTimeKind.Utc);
+
+            var fields = new Dictionary<string, object>();
+
+            fields.AddFieldValue("air_temperature_at_2m", source.AirTemperatureAt2m);
+            fields.AddFieldValue("air_temperature_at_5cm", source.AirTemperatureAt5cm);
+            fields.AddFieldValue("dew_point_temperature_at_2m", source.DewPointTemperatureAt2m);
+            fields.AddFieldValue("relative_humidity", source.RelativeHumidity);
+
+            // No Measurements to be inserted:
+            if (fields.Count == 0)
+            {
+                return null;
+            }
+
+            var tags = new Dictionary<string, string>
                 {
                     {"station_identifier", source.StationIdentifier},
                     {"quality_code", source.QualityCode.ToString(CultureInfo.InvariantCulture)}
                 };
 
-                return new LineProtocolPoint("weather_measurement", fields, tags, utcTimeStamp);
-            }
+            return new LineProtocolPoint("weather_measurement", new ReadOnlyDictionary<string, object>(fields), tags, utcTimeStamp);
         }
-    
+
+        private static void AddFieldValue(this IDictionary<string, object> dictionary, string key, object value)
+        {
+            if (value == null)
+            {
+                return;
+            }
+
+            dictionary.Add(key, value);
+        }
+    }
+
 }

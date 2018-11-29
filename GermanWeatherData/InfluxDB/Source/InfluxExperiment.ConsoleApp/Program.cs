@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using Experiments.Common.Csv.Extensions;
 using Experiments.Common.Csv.Parser;
+using InfluxExperiment.Converters;
 using InfluxExperiment.Influx.Client;
 
 namespace InfluxExperiment.ConsoleApp
@@ -68,7 +69,7 @@ namespace InfluxExperiment.ConsoleApp
                         // Evaluate:
                         .ToList();
 
-                    var payload = Converters.LocalWeatherDataConverter.Convert(validRecords);
+                    var payload = LocalWeatherDataConverter.Convert(validRecords);
 
                     // Finally write them with the Batch Writer:
                     processor.Write(payload);
