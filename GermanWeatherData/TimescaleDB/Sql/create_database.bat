@@ -3,7 +3,7 @@
 :: Copyright (c) Philipp Wagner. All rights reserved.
 :: Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-set PGSQL_EXECUTABLE="C:\Program Files\PostgreSQL\9.4\bin\psql.exe"
+set PGSQL_EXECUTABLE="psql.exe"
 set STDOUT=stdout.log
 set STDERR=stderr.log
 set LOGFILE=query_output.log

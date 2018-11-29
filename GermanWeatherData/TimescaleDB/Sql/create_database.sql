@@ -4,19 +4,16 @@ DO $$
 --
 BEGIN
 
+
 IF NOT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'sample') THEN
 
     CREATE SCHEMA sample;
 
 END IF;
 
-END;
-
 --
 -- Tables
 --
-BEGIN
-
 IF NOT EXISTS (
 	SELECT 1 
 	FROM information_schema.tables 
@@ -58,9 +55,15 @@ CREATE TABLE sample.weather_data
     dew_point_temperature_at_2m DOUBLE PRECISION NULL        
 );
 
--- Convert it into a TimescaleDB Hypertable partitioned by timestamp:
-SELECT create_hypertable('sample.weather_data', 'timestamp');
-
 END IF;
 
+--
+-- Make sure to create the timescaledb Extension in the Schema (Needs Superuser Role):
+--
+CREATE EXTENSION IF NOT EXISTS timescaledb SCHEMA sample;
+
+PERFORM sample.create_hypertable('sample.weather_data', 'timestamp');
+
+
 END;
+$$
