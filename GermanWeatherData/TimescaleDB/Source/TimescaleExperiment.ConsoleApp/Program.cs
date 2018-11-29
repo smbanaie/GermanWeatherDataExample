@@ -15,7 +15,7 @@ namespace TimescaleExperiment.ConsoleApp
     public class Program
     {
         // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"Data Source=.\MSSQLSERVER2017;Integrated Security=true;Initial Catalog=GermanWeatherDatabase;";
+        private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Database=sampledb;User Id=philipp;Password=test_pwd;";
 
         public static void Main(string[] args)
         {

@@ -48,11 +48,11 @@ CREATE TABLE sample.weather_data
     station_identifier VARCHAR(5) NOT NULL,
     timestamp TIMESTAMPTZ NOT NULL,
     quality_code SMALLINT,
-    station_pressure DOUBLE PRECISION NULL,
-    air_temperature_at_2m DOUBLE PRECISION NULL,
-    air_temperature_at_5cm DOUBLE PRECISION NULL,
-    relative_humidity DOUBLE PRECISION NULL,
-    dew_point_temperature_at_2m DOUBLE PRECISION NULL        
+    station_pressure REAL NULL,
+    air_temperature_at_2m REAL NULL,
+    air_temperature_at_5cm REAL NULL,
+    relative_humidity REAL NULL,
+    dew_point_temperature_at_2m REAL NULL        
 );
 
 END IF;
