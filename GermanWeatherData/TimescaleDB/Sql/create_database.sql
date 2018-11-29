@@ -57,13 +57,6 @@ CREATE TABLE sample.weather_data
 
 END IF;
 
---
--- Make sure to create the timescaledb Extension in the Schema (Needs Superuser Role):
---
-CREATE EXTENSION IF NOT EXISTS timescaledb SCHEMA sample;
-
-PERFORM sample.create_hypertable('sample.weather_data', 'timestamp');
-
 
 END;
 $$

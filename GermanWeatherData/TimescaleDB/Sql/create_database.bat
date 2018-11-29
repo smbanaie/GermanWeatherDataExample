@@ -35,6 +35,7 @@ set /p PGPASSWORD="Password: "
 1>%STDOUT% 2>%STDERR% (
 
 	%PGSQL_EXECUTABLE% -h %HostName% -p %PortNumber% -d %DatabaseName% -U %UserName% < create_database.sql -L %LOGFILE%
+    %PGSQL_EXECUTABLE% -h %HostName% -p %PortNumber% -d %DatabaseName% -U %UserName% < create_hypertable.sql -L %LOGFILE%
 )
 
 goto :end
