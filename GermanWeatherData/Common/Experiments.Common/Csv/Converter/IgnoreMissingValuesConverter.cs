@@ -34,7 +34,7 @@ namespace Experiments.Common.Csv.Converter
 
         public bool TryConvert(string value, out float? result)
         {
-            if(string.Equals(missingValueRepresentation, value, StringComparison.Ordinal))
+            if(string.Equals(missingValueRepresentation, value.Trim(), StringComparison.InvariantCultureIgnoreCase))
             {
                 result = default(float?);
 

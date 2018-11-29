@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -22,12 +23,15 @@ namespace InfluxExperiment.Converters
 
                 LineProtocolPayload payload = new LineProtocolPayload();
 
-                Parallel.ForEach(source, x =>
+                foreach (var item in source)
                 {
-                    var point = Convert(x);
+                    var point = Convert(item);
 
-                    payload.Add(point);
-                });
+                    if (point != null)
+                    {
+                        payload.Add(point);
+                    }
+                }
 
                 return payload;
             }
@@ -39,12 +43,14 @@ namespace InfluxExperiment.Converters
                     return null;
                 }
 
+                var utcTimeStamp = DateTime.SpecifyKind(source.TimeStamp, DateTimeKind.Utc);
+
                 var fields = new ReadOnlyDictionary<string, object>(new Dictionary<string, object>
                 {
                     {"air_temperature_at_2m", source.AirTemperatureAt2m },
                     {"air_temperature_at_5cm", source.AirTemperatureAt5cm },
                     {"dew_point_temperature_at_2m", source.DewPointTemperatureAt2m },
-                    {"relative_humidity", source.RelativeHumidity },
+                    {"relative_humidity", source.RelativeHumidity }
                 });
 
                 var tags = new Dictionary<string, string>
@@ -53,7 +59,7 @@ namespace InfluxExperiment.Converters
                     {"quality_code", source.QualityCode.ToString(CultureInfo.InvariantCulture)}
                 };
 
-                return new LineProtocolPoint("weather_measurement", fields, tags, source.TimeStamp);
+                return new LineProtocolPoint("weather_measurement", fields, tags, utcTimeStamp);
             }
         }
     

@@ -15,7 +15,7 @@ namespace InfluxExperiment.ConsoleApp
     public class Program
     {
         // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"http://localhost:8086;";
+        private static readonly string ConnectionString = @"http://localhost:8086";
         private static readonly string Database = @"weather_data";
 
         public static void Main(string[] args)
@@ -57,8 +57,6 @@ namespace InfluxExperiment.ConsoleApp
                 .Subscribe(records =>
                 {
                     var validRecords = records
-                        // Use all the Threads for the Pipeline:
-                        .AsParallel()
                         // Get the Valid Results:
                         .Where(x => x.IsValid)
                         // And get the populated Entities:
@@ -73,7 +71,7 @@ namespace InfluxExperiment.ConsoleApp
                     var payload = Converters.LocalWeatherDataConverter.Convert(validRecords);
 
                     // Finally write them with the Batch Writer:
-                    processor.WriteAsync(payload).GetAwaiter().GetResult();
+                    processor.Write(payload);
                 });
         }
 

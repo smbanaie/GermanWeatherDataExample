@@ -19,7 +19,7 @@ namespace InfluxExperiment.Influx.Client
             this.connectionString = connectionString;
         }
 
-        public async Task<LineProtocolWriteResult> WriteAsync(LineProtocolPayload source)
+        public LineProtocolWriteResult Write(LineProtocolPayload source)
         {
             if(source == null)
             {
@@ -28,9 +28,7 @@ namespace InfluxExperiment.Influx.Client
 
             var client = new LineProtocolClient(new Uri(connectionString), database);
 
-            return await client
-                .WriteAsync(source)
-                .ConfigureAwait(false);
+            return client.WriteAsync(source).GetAwaiter().GetResult();
         }
     }
 }
