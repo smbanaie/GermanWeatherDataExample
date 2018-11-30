@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using InfluxDB.LineProtocol.Client;
 using InfluxDB.LineProtocol.Payload;
@@ -19,16 +20,16 @@ namespace InfluxExperiment.Influx.Client
             this.connectionString = connectionString;
         }
 
-        public LineProtocolWriteResult Write(LineProtocolPayload source)
+        public Task<LineProtocolWriteResult> WriteAsync(LineProtocolPayload source, CancellationToken cancellationToken = default(CancellationToken))
         {
             if(source == null)
             {
-                return new LineProtocolWriteResult();
+                return Task.FromResult(new LineProtocolWriteResult(true, string.Empty));
             }
 
             var client = new LineProtocolClient(new Uri(connectionString), database);
 
-            return client.WriteAsync(source).GetAwaiter().GetResult();
+            return client.WriteAsync(source, cancellationToken);
         }
     }
 }

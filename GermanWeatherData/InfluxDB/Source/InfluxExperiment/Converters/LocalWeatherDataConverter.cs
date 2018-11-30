@@ -14,7 +14,7 @@ namespace InfluxExperiment.Converters
 {
     public static class LocalWeatherDataConverter
     {
-        public static LineProtocolPayload Convert(IList<CsvLocalWeatherDataType> source)
+        public static LineProtocolPayload Convert(IEnumerable<CsvLocalWeatherDataType> source)
         {
             if (source == null)
             {
