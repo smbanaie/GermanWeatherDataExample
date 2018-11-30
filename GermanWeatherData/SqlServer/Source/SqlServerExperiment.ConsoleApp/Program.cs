@@ -15,7 +15,7 @@ namespace SqlServerExperiment.ConsoleApp
     public class Program
     {
         // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"Data Source=.\MSSQLSERVER2019;Integrated Security=true;Initial Catalog=GermanWeatherDatabase;";
+        private static readonly string ConnectionString = @"Data Source=.\MSSQLSERVER2017;Integrated Security=true;Initial Catalog=GermanWeatherDatabase;";
 
         public static void Main(string[] args)
         {
@@ -54,8 +54,8 @@ namespace SqlServerExperiment.ConsoleApp
                 .ReadFromFile(csvFilePath, Encoding.UTF8, 2)
                 // As an Observable:
                 .ToObservable()
-                // Batch in 10000 Entities / or wait 1 Second:
-                .Buffer(TimeSpan.FromSeconds(1), 10000)
+                // Batch:
+                .Buffer(TimeSpan.FromSeconds(1), 80000)
                 // And subscribe to the Batch
                 .Subscribe(records =>
                 {

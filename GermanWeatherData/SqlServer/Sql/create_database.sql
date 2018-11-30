@@ -63,14 +63,38 @@ BEGIN
         [AirTemperatureAt5cm] [REAL],
         [RelativeHumidity] [REAL],
         [DewPointTemperatureAt2m] [REAL]
-        CONSTRAINT [PK_LocalWeatherData] PRIMARY KEY CLUSTERED 
-        (
-            [StationIdentifier] ASC,
-            [Timestamp] ASC
-        ),
     ) ON [PRIMARY]
 
 END
+GO
+
+--
+-- INDEXES
+--
+IF EXISTS (SELECT name FROM sys.indexes WHERE name = N'PK_Station' AND object_id = OBJECT_ID(N'sample.Station'))
+BEGIN
+
+    ALTER TABLE [sample].[Station]
+        DROP CONSTRAINT PK_Station;
+END
+GO
+
+ALTER TABLE [sample].[Station]
+    ADD CONSTRAINT PK_Station PRIMARY KEY CLUSTERED (Identifier);  
+    
+GO
+-- This one drops the PK_LocalWeatherData and creates a CLUSTERED COLUMNSTORE INDEX (CCI).
+--
+-- Maybe we should add the CCI after having inserted all data? But if we want efficient queries on most recent data, it is probably 
+-- a necessity to have it rebuilt while inserting. If this is too much of slowdown it should be commented out.
+--
+IF EXISTS (SELECT name FROM sys.indexes WHERE name = N'LocalWeatherData_CCI' AND object_id = OBJECT_ID(N'sample.LocalWeatherData'))  
+BEGIN
+    DROP INDEX LocalWeatherData_CCI ON [sample].[LocalWeatherData];  
+END
+GO
+    
+CREATE CLUSTERED COLUMNSTORE INDEX [LocalWeatherData_CCI] ON [sample].[LocalWeatherData] WITH (DROP_EXISTING = OFF);
 GO
 
 --
@@ -82,22 +106,26 @@ GO
 --
 -- But it's too painful for me to delete these beauties, and maybe I need to copy and paste them for future projects.
 --
+-- When using the MERGE Procedure for the LocalWeatherData, then make sure you have an Index on (StationIdentifier, Timestamp)
+-- or the query for the MERGE condition will become very slow!
+--
 IF OBJECT_ID(N'[sample].[InsertStation]', N'P') IS NOT NULL
 BEGIN
-    DROP PROCEDURE [sample].[InsertStation]
+    DROP PROCEDURE [sample].[InsertStation];
 END
 GO
 
 IF OBJECT_ID(N'[sample].[InsertOrUpdateStation]', N'P') IS NOT NULL
 BEGIN
-    DROP PROCEDURE [sample].[InsertOrUpdateStation]
+    DROP PROCEDURE [sample].[InsertOrUpdateStation];
 END
 GO
 
-IF EXISTS (SELECT * FROM sys.types WHERE is_table_type = 1 AND name = '[sample].[StationType]')
+IF EXISTS (SELECT * FROM sys.types WHERE is_table_type = 1 AND name = 'StationType')
 BEGIN
-    DROP TYPE [sample].[StationType]
+    DROP TYPE [sample].[StationType];
 END
+GO
 
 CREATE TYPE [sample].[StationType] AS TABLE (
     [Identifier] [NVARCHAR](5) NOT NULL,
@@ -109,7 +137,6 @@ CREATE TYPE [sample].[StationType] AS TABLE (
     [Latitude] [REAL],
     [Longitude] [REAL]
 );
-
 GO
 
 CREATE PROCEDURE [sample].[InsertStation]
@@ -119,7 +146,7 @@ BEGIN
     
     SET NOCOUNT ON;
  
-    INSERT (Identifier, Name, StartDate, EndDate, StationHeight, State, Latitude, Longitude) 
+    INSERT INTO [sample].[Station](Identifier, Name, StartDate, EndDate, StationHeight, State, Latitude, Longitude) 
     SELECT Identifier, Name, StartDate, EndDate, StationHeight, State, Latitude, Longitude 
     FROM @Entities;
 
@@ -145,17 +172,17 @@ GO
 
 IF OBJECT_ID(N'[sample].[InsertLocalWeatherData]', N'P') IS NOT NULL
 BEGIN
-    DROP PROCEDURE [sample].[InsertLocalWeatherData]
+    DROP PROCEDURE [sample].[InsertLocalWeatherData];
 END
 GO 
 
 IF OBJECT_ID(N'[sample].[InsertOrUpdateLocalWeatherData]', N'P') IS NOT NULL
 BEGIN
-    DROP PROCEDURE [sample].[InsertOrUpdateLocalWeatherData]
+    DROP PROCEDURE [sample].[InsertOrUpdateLocalWeatherData];
 END
 GO 
 
-IF EXISTS (SELECT * FROM sys.types WHERE is_table_type = 1 AND name = '[sample].[LocalWeatherDataType]')
+IF EXISTS (SELECT * FROM sys.types WHERE is_table_type = 1 AND name = 'LocalWeatherDataType')
 BEGIN
     DROP TYPE [sample].[LocalWeatherDataType]
 END
@@ -180,7 +207,7 @@ BEGIN
     
     SET NOCOUNT ON;
 
-    INSERT (StationIdentifier, Timestamp, QualityCode, StationPressure, AirTemperatureAt2m, AirTemperatureAt5cm, RelativeHumidity, DewPointTemperatureAt2m)
+    INSERT INTO [sample].[LocalWeatherData](StationIdentifier, Timestamp, QualityCode, StationPressure, AirTemperatureAt2m, AirTemperatureAt5cm, RelativeHumidity, DewPointTemperatureAt2m)
     SELECT StationIdentifier, Timestamp, QualityCode, StationPressure, AirTemperatureAt2m, AirTemperatureAt5cm, RelativeHumidity, DewPointTemperatureAt2m
     FROM @Entities;
 

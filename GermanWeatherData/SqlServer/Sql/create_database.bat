@@ -8,7 +8,7 @@ set STDOUT=stdout.log
 set STDERR=stderr.log
 set LOGFILE=query_output.log
 
-set ServerName=.\MSSQLSERVER2019
+set ServerName=.\MSSQLSERVER2017
 set DatabaseName=GermanWeatherDatabase
 
 call :AskQuestionWithYdefault "Use Server (%ServerName%) [Y,n]?" reply_
