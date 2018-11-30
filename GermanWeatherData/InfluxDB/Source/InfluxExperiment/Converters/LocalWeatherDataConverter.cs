@@ -43,8 +43,6 @@ namespace InfluxExperiment.Converters
                 return null;
             }
 
-            var utcTimeStamp = DateTime.SpecifyKind(source.TimeStamp, DateTimeKind.Utc);
-
             var fields = new Dictionary<string, object>();
 
             fields.AddFieldValue("air_temperature_at_2m", source.AirTemperatureAt2m);
@@ -64,7 +62,7 @@ namespace InfluxExperiment.Converters
                     {"quality_code", source.QualityCode.ToString(CultureInfo.InvariantCulture)}
                 };
 
-            return new LineProtocolPoint("weather_measurement", new ReadOnlyDictionary<string, object>(fields), tags, utcTimeStamp);
+            return new LineProtocolPoint("weather_measurement", new ReadOnlyDictionary<string, object>(fields), tags, source.TimeStamp);
         }
 
         private static void AddFieldValue(this IDictionary<string, object> dictionary, string key, object value)

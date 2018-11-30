@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using Experiments.Common.Csv.Converter;
 using Experiments.Common.Csv.Model;
 using TinyCsvParser.Mapping;
@@ -13,7 +14,7 @@ namespace Experiments.Common.Csv.Mapper
         public LocalWeatherDataMapper()
         {
             MapProperty(0, x => x.StationIdentifier, new StringPadLeftConverter(5, '0'));
-            MapProperty(1, x => x.TimeStamp, new DateTimeConverter("yyyyMMddHHmm"));
+            MapProperty(1, x => x.TimeStamp, new CustomDateTimeConverter("yyyyMMddHHmm", DateTimeKind.Utc));
             MapProperty(2, x => x.QualityCode);
             MapProperty(3, x => x.StationPressure, new IgnoreMissingValuesConverter("-999"));
             MapProperty(4, x => x.AirTemperatureAt2m, new IgnoreMissingValuesConverter("-999"));
