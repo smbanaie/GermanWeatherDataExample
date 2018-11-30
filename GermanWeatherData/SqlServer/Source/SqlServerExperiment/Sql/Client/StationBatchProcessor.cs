@@ -40,7 +40,7 @@ namespace SqlServerExperiment.Sql.Client
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     // Build the Stored Procedure Command:
-                    cmd.CommandText = "[sample].[InsertStation]";
+                    cmd.CommandText = "[sample].[InsertOrUpdateStation]";
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     // Create the TVP:
