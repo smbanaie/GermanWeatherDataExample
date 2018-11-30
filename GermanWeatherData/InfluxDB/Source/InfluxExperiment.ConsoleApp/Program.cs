@@ -60,6 +60,8 @@ namespace InfluxExperiment.ConsoleApp
                 .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
                 // If there are duplicates then make a guess and select the first one:
                 .Select(x => x.First())
+                // Let's stay safe! Stop parallelism here:
+                .AsEnumerable()
                 // Evaluate:
                 .Batch(30000);
 
