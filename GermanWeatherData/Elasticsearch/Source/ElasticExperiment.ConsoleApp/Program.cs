@@ -25,39 +25,61 @@ namespace ElasticExperiment.ConsoleApp
             // Read the Stations:
             string csvStationDataFile = @"D:\datasets\CDC\zehn_min_tu_Beschreibung_Stationen.txt";
 
-            var stations = GetStations(csvStationDataFile)
-                // Create a Dictionary for Faster Lookups:
-                .ToDictionary(x => x.Identifier, x => x);
+            ProcessStations(csvStationDataFile);
+            
+            // Import 10 Minute CDC Weather Data:
+            var csvWeatherDataFiles = GetFilesFromFolder(@"D:\datasets\CDC");
 
+            foreach (var csvWeatherDataFile in csvWeatherDataFiles)
+            {
+                ProcessLocalWeatherData(csvWeatherDataFile);
+            }
+        }
+
+        private static void ProcessStations(string csvStationDataFile)
+        {
+            // Construct the Batch Processor:
+            var client = new ElasticSearchClient<Elastic.Model.Station>(ConnectionString, "stations");
+
+            // Make Sure the weather_data Index we insert to exists:
+            client.CreateIndex();
+
+            Parsers
+                .StationParser
+                .ReadFromFile(csvStationDataFile, Encoding.UTF8, 2)
+                // As an Observable:
+                .ToObservable()
+                // Batch in 80000 Entities / or wait 1 Second:
+                .Buffer(TimeSpan.FromSeconds(1), 80000)
+                // And subscribe to the Batch
+                .Subscribe(records =>
+                {
+                    var validRecords = records
+                        // Get the Valid Results:
+                        .Where(x => x.IsValid)
+                        // And get the populated Entities:
+                        .Select(x => x.Result)
+                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
+                        .GroupBy(x => new { x.Identifier })
+                        // If there are duplicates then make a guess and select the first one:
+                        .Select(x => x.First())
+                        // Convert to the Elastic Representation:
+                        .Select(x => LocalWeatherDataConverter.Convert(x))
+                        // Evaluate:
+                        .ToList();
+
+                    client.BulkInsert(validRecords);
+                });
+        }
+
+        private static void ProcessLocalWeatherData(string csvFilePath)
+        {
             // Construct the Batch Processor:
             var client = new ElasticSearchClient<Elastic.Model.LocalWeatherData>(ConnectionString, "weather_data");
 
             // Make Sure the weather_data Index we insert to exists:
             client.CreateIndex();
 
-            // Import 10 Minute CDC Weather Data:
-            var csvWeatherDataFiles = GetFilesFromFolder(@"D:\datasets\CDC");
-
-            foreach (var csvWeatherDataFile in csvWeatherDataFiles)
-            {
-                ProcessLocalWeatherData(csvWeatherDataFile, client, stations);
-            }
-        }
-
-        private static IList<Station> GetStations(string csvStationDataFile)
-        {
-            return Parsers
-                .StationParser
-                .ReadFromFile(csvStationDataFile, Encoding.UTF8, 2)
-                .Where(x => x.IsValid)
-                .Select(x => x.Result)
-                .ToList();
-        }
-
-        private static void ProcessLocalWeatherData(string csvFilePath, 
-            ElasticSearchClient<Elastic.Model.LocalWeatherData> client, 
-            IDictionary<string, Station> stations)
-        {
             Console.WriteLine($"Processing File: {csvFilePath}");
             
             // Access to the List of Parsers:
