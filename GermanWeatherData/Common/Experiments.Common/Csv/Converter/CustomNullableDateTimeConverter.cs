@@ -36,10 +36,10 @@ namespace Experiments.Common.Csv.Converter
 
         public bool TryConvert(string value, out DateTime? result)
         {
+            result = default(DateTime?);
+
             if (string.IsNullOrWhiteSpace(value))
             {
-                result = default(DateTime?);
-
                 return true;
             }
 
