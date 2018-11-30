@@ -7,8 +7,8 @@ namespace ElasticExperiment.Elastic.Model
 {
     public class LocalWeatherData
     {
-        [Nested(IncludeInParent = true)]
-        public Station Station { get; set; }
+        [Text]
+        public string Station { get; set; }
 
         [Date]
         public DateTime TimeStamp { get; set; }

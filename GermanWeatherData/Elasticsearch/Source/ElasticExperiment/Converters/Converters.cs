@@ -11,21 +11,11 @@ namespace ElasticExperiment.Converters
 {
     public static class LocalWeatherDataConverter
     {
-        public static ElasticLocalWeatherDataType Convert(CsvStationType station, CsvLocalWeatherDataType localWeatherData)
+        public static ElasticLocalWeatherDataType Convert(CsvLocalWeatherDataType localWeatherData)
         {
             return new ElasticLocalWeatherDataType
             {
-                Station = new ElasticStationType
-                {
-                    Identifier = station.Identifier,
-                    Name = station.Name,
-                    StartDate = station.StartDate,
-                    EndDate = station.EndDate,
-                    State = station.State,
-                    Latitude = station.Latitude,
-                    Longitude = station.Longitude,
-                    StationHeight = station.StationHeight,
-                },
+                Station = localWeatherData.StationIdentifier,
                 AirTemperatureAt2m = localWeatherData.AirTemperatureAt2m,
                 AirTemperatureAt5cm = localWeatherData.AirTemperatureAt5cm,
                 DewPointTemperatureAt2m = localWeatherData.DewPointTemperatureAt2m,

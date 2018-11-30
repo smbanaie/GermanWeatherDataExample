@@ -82,10 +82,8 @@ namespace ElasticExperiment.ConsoleApp
                         .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
                         // If there are duplicates then make a guess and select the first one:
                         .Select(x => x.First())
-                        // Only where the Station is available!
-                        .Where(x => stations.ContainsKey(x.StationIdentifier))
                         // Convert to the Elastic Representation:
-                        .Select(x => LocalWeatherDataConverter.Convert(stations[x.StationIdentifier], x))
+                        .Select(x => LocalWeatherDataConverter.Convert(x))
                         // Evaluate:
                         .ToList();
 
