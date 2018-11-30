@@ -74,8 +74,6 @@ namespace ElasticExperiment.ConsoleApp
                 .Subscribe(records =>
                 {
                     var validRecords = records
-                        // Use all the Threads for the Pipeline:
-                        .AsParallel()
                         // Get the Valid Results:
                         .Where(x => x.IsValid)
                         // And get the populated Entities:

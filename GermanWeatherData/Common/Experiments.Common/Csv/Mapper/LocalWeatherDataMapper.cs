@@ -12,7 +12,7 @@ namespace Experiments.Common.Csv.Mapper
     {
         public LocalWeatherDataMapper()
         {
-            MapProperty(0, x => x.StationIdentifier);
+            MapProperty(0, x => x.StationIdentifier, new StringPadLeftConverter(5, '0'));
             MapProperty(1, x => x.TimeStamp, new DateTimeConverter("yyyyMMddHHmm"));
             MapProperty(2, x => x.QualityCode);
             MapProperty(3, x => x.StationPressure, new IgnoreMissingValuesConverter("-999"));
