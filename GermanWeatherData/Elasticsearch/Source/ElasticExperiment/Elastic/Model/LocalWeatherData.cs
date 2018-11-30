@@ -5,6 +5,7 @@ using Nest;
 
 namespace ElasticExperiment.Elastic.Model
 {
+    
     public class LocalWeatherData
     {
         [Text]

@@ -6,6 +6,23 @@ Going through a lot of pain has taught me, that you have to know about the capab
 
 In the project I want to benchmark [TimescaleDB], [Elasticsearch], [SQL Server] and [InfluxDB] on the 10 Minute Weather Data for Germany, which is available as Open Data in the [DWD Open Data](https://opendata.dwd.de/) portal. The dataset is available as CSV files and has a size of 25.5 GB.
 
+## TimescaleDB ##
+
+* [TimescaleDB Documentation](https://docs.timescale.com)
+* [PostgreSQL 10.6 Documentation](https://www.postgresql.org/docs/10/index.html)
+* [Time-series data: Why (and how) to use a relational database instead of NoSQL](https://blog.timescale.com/time-series-data-why-and-how-to-use-a-relational-database-instead-of-nosql-d0cd6975e87c)
+
+## InfluxDB ##
+
+* [InfluxDB Documentation](https://docs.influxdata.com/influxdb/)
+* [InfluxDB .NET Collector](https://github.com/influxdata/influxdb-csharp)
+
+## Elasticsearch ##
+
+* [Removal of Mapping Types in Elasticsearch 6.0](https://www.elastic.co/blog/removal-of-mapping-types-elasticsearch)
+* [Elasticsearch as a Time Series Data Store](https://www.elastic.co/blog/elasticsearch-as-a-time-series-data-store)
+* [NEST: Auto Mapping](https://www.elastic.co/guide/en/elasticsearch/client/net-api/current/auto-map.html)
+
 [TimescaleDB]: https://www.timescale.com/
 [Elasticsearch]: https://www.elastic.co/
 [SQL Server]: https://www.microsoft.com/de-de/sql-server/sql-server-2017

@@ -26,10 +26,7 @@ namespace ElasticExperiment.Elastic.Model
         [Text]
         public string State { get; set; }
 
-        [Number(NumberType.Float)]
-        public float Latitude { get; set; }
-
-        [Number(NumberType.Float)]
-        public float Longitude { get; set; }
+        [GeoPoint]
+        public GeoLocation GeoLocation { get; set; }
     }
 }
