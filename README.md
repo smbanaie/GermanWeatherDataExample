@@ -16,7 +16,6 @@ In the project I want to benchmark [TimescaleDB], [Elasticsearch], [SQL Server] 
 * [TimescaleDB Documentation](https://docs.timescale.com)
 * [PostgreSQL 10.6 Documentation](https://www.postgresql.org/docs/10/index.html)
 * [Time-series data: Why (and how) to use a relational database instead of NoSQL](https://blog.timescale.com/time-series-data-why-and-how-to-use-a-relational-database-instead-of-nosql-d0cd6975e87c)
-* 
 
 ## InfluxDB ##
 
