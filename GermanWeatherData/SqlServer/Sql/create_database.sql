@@ -1,3 +1,6 @@
+--
+-- DATABASE
+--
 IF DB_ID('$(dbname)') IS NULL
 BEGIN
     CREATE DATABASE $(dbname)
@@ -7,6 +10,9 @@ GO
 use $(dbname)
 GO 
 
+-- 
+-- SCHEMAS
+--
 IF NOT EXISTS (SELECT name from sys.schemas WHERE name = 'sample')
 BEGIN
 
@@ -15,7 +21,9 @@ BEGIN
 END
 GO
 
-
+--
+-- TABLES
+--
 IF  NOT EXISTS 
 	(SELECT * FROM sys.objects 
 	 WHERE object_id = OBJECT_ID(N'[sample].[Station]') AND type in (N'U'))
@@ -65,6 +73,20 @@ BEGIN
 END
 GO
 
+--
+-- STORED PROCEDURES
+--
+-- The InsertOrUpdate methods use the MERGE Statement to upsert the data. We have primary keys for the matching statements,
+-- but it may still take additional time for matching the data. It would be unfair to compare this with the InfluxDB, 
+-- Elasticsearch and TimescaleDB ingestion, where this condition isn't tested.
+--
+-- But it's too painful for me to delete these beauties, and maybe I need to copy and paste them for future projects.
+--
+IF OBJECT_ID(N'[sample].[InsertStation]', N'P') IS NOT NULL
+BEGIN
+    DROP PROCEDURE [sample].[InsertStation]
+END
+GO
 
 IF OBJECT_ID(N'[sample].[InsertOrUpdateStation]', N'P') IS NOT NULL
 BEGIN
@@ -90,6 +112,20 @@ CREATE TYPE [sample].[StationType] AS TABLE (
 
 GO
 
+CREATE PROCEDURE [sample].[InsertStation]
+  @Entities [sample].[StationType] ReadOnly
+AS
+BEGIN
+    
+    SET NOCOUNT ON;
+ 
+    INSERT (Identifier, Name, StartDate, EndDate, StationHeight, State, Latitude, Longitude) 
+    SELECT Identifier, Name, StartDate, EndDate, StationHeight, State, Latitude, Longitude 
+    FROM @Entities;
+
+END
+GO
+
 CREATE PROCEDURE [sample].[InsertOrUpdateStation]
   @Entities [sample].[StationType] ReadOnly
 AS
@@ -106,6 +142,12 @@ BEGIN
 
 END
 GO
+
+IF OBJECT_ID(N'[sample].[InsertLocalWeatherData]', N'P') IS NOT NULL
+BEGIN
+    DROP PROCEDURE [sample].[InsertLocalWeatherData]
+END
+GO 
 
 IF OBJECT_ID(N'[sample].[InsertOrUpdateLocalWeatherData]', N'P') IS NOT NULL
 BEGIN
@@ -129,6 +171,20 @@ CREATE TYPE [sample].[LocalWeatherDataType] AS TABLE (
     [DewPointTemperatureAt2m] [REAL]
 );
 
+GO
+
+CREATE PROCEDURE [sample].[InsertLocalWeatherData]
+  @Entities [sample].[LocalWeatherDataType] ReadOnly
+AS
+BEGIN
+    
+    SET NOCOUNT ON;
+
+    INSERT (StationIdentifier, Timestamp, QualityCode, StationPressure, AirTemperatureAt2m, AirTemperatureAt5cm, RelativeHumidity, DewPointTemperatureAt2m)
+    SELECT StationIdentifier, Timestamp, QualityCode, StationPressure, AirTemperatureAt2m, AirTemperatureAt5cm, RelativeHumidity, DewPointTemperatureAt2m
+    FROM @Entities;
+
+END
 GO
 
 
