@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using log4net;
 using Npgsql;
 using NpgsqlTypes;
 using PostgreSQLCopyHelper;
@@ -13,6 +13,8 @@ namespace TimescaleExperiment.Sql.Client
 {
     public class LocalWeatherDataBatchProcessor : IBatchProcessor<LocalWeatherData>
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(LocalWeatherDataBatchProcessor));
+
         private class LocalWeatherCopyHelper : PostgreSQLCopyHelper<LocalWeatherData>
         {
             public LocalWeatherCopyHelper()
@@ -52,7 +54,10 @@ namespace TimescaleExperiment.Sql.Client
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}] [ERR] {e.Message}");
+                if (log.IsErrorEnabled)
+                {
+                    log.Error("An Error occured while writing measurements", e);
+                }
             }
         }
 

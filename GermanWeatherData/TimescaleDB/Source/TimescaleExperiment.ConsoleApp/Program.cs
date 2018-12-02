@@ -2,24 +2,64 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Experiments.Common.Csv.Extensions;
 using Experiments.Common.Csv.Parser;
 using Experiments.Common.Extensions;
+using log4net;
+using log4net.Appender;
+using log4net.Core;
+using log4net.Layout;
+using log4net.Repository.Hierarchy;
 using TimescaleExperiment.Sql.Client;
 
 namespace TimescaleExperiment.ConsoleApp
 {
     public class Program
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+
         // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Database=sampledb;User Id=philipp;Password=test_pwd;";
+        private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Keepalive=600;Database=sampledb;User Id=philipp;Password=test_pwd;";
+
+        // Initialize Log4Net:
+        public static void InitializeLog4Net()
+        {
+            Hierarchy hierarchy = (Hierarchy) LogManager.GetRepository(typeof(Program).Assembly);
+            
+            PatternLayout patternLayout = new PatternLayout();
+            patternLayout.ConversionPattern = "%date [%thread] %-5level %logger - %message%newline";
+            patternLayout.ActivateOptions();
+
+            RollingFileAppender rollingFileAppender = new RollingFileAppender();
+            rollingFileAppender.AppendToFile = false;
+            rollingFileAppender.File = @"C:\temp\log.txt";
+            rollingFileAppender.Layout = patternLayout;
+            rollingFileAppender.MaxSizeRollBackups = 5;
+            rollingFileAppender.MaximumFileSize = "10MB";
+            rollingFileAppender.RollingStyle = RollingFileAppender.RollingMode.Size;
+            rollingFileAppender.StaticLogFileName = true;
+            rollingFileAppender.ActivateOptions();
+            rollingFileAppender.Threshold = Level.Error;
+
+            hierarchy.Root.AddAppender(rollingFileAppender);
+
+            ConsoleAppender consoleAppender = new ConsoleAppender();
+            consoleAppender.Layout = patternLayout;
+            consoleAppender.Threshold = Level.Debug;
+
+            hierarchy.Root.AddAppender(consoleAppender);
+
+            hierarchy.Root.Level = Level.Debug;
+            hierarchy.Configured = true;
+        }
 
         public static void Main(string[] args)
         {
+            InitializeLog4Net();
+
             // Import all Stations:
             var csvStationDataFiles = new[]
             {
@@ -45,7 +85,10 @@ namespace TimescaleExperiment.ConsoleApp
 
         private static void ProcessStationData(string csvFilePath)
         {
-            Console.WriteLine($"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}] Processing File: {csvFilePath}");
+            if (log.IsInfoEnabled)
+            {
+                log.Info($"Processing File: {csvFilePath}");
+            }
 
             // Construct the Batch Processor:
             var processor = new StationBatchProcessor(ConnectionString);
@@ -65,11 +108,11 @@ namespace TimescaleExperiment.ConsoleApp
                 // Stop Parallelism:
                 .AsEnumerable()
                 // Batch in 10000 Entities / or wait 1 Second:
-                .Batch(70000)
+                .Batch(20000)
                 // And subscribe to the Batch
                 .Select(records =>
                 {
-                    var batch = records
+                    return records
                         // Group By WBAN to avoid duplicate Stations in the Batch:
                         .GroupBy(x => x.Identifier)
                         // Only Select the First Station:
@@ -78,10 +121,7 @@ namespace TimescaleExperiment.ConsoleApp
                         .Select(x => Converters.Converters.Convert(x))
                         // Evaluate:
                         .ToList();
-
-                    return batch;
                 });
-
 
             foreach (var batch in batches)
             {
@@ -90,13 +130,9 @@ namespace TimescaleExperiment.ConsoleApp
             }
         }
 
-
         private static void ProcessLocalWeatherData(string csvFilePath)
         {
-            Console.WriteLine($"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}] Processing File: {csvFilePath}");
-
-            // Construct the Batch Processor:
-            var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
+            log.Info($"Processing File: {csvFilePath}");
 
             // Access to the List of Parsers:
             var batches = Parsers
@@ -110,12 +146,12 @@ namespace TimescaleExperiment.ConsoleApp
                 .Select(x => x.Result)
                 // As an Observable:
                 .AsEnumerable()
-                // Batch in 80000 Entities / or wait 1 Second:
-                .Batch(80000)
+                // Batch:
+                .Batch(50000)
                 // And subscribe to the Batch
                 .Select(records =>
                 {
-                    var batch = records
+                    return records
                         // Group by WBAN, Date and Time to avoid duplicates for this batch:
                         .GroupBy(x => new { x.StationIdentifier, x.TimeStamp })
                         // If there are duplicates then make a guess and select the first one:
@@ -124,10 +160,11 @@ namespace TimescaleExperiment.ConsoleApp
                         .Select(x => Converters.Converters.Convert(x))
                         // Evaluate:
                         .ToList();
-
-                    return batch;
                 });
 
+
+            // Construct the Batch Processor:
+            var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
 
             foreach (var batch in batches)
             {
