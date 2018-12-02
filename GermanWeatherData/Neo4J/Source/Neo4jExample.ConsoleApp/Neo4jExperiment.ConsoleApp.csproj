@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Reactive.Linq" Version="3.1.1" />
+    <PackageReference Include="System.Reactive.Linq" Version="4.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Experiments.Common\Experiments.Common.csproj" />
+    <ProjectReference Include="..\..\..\Common\Experiments.Common\Experiments.Common.csproj" />
     <ProjectReference Include="..\Neo4jExample\Neo4jExperiment.csproj" />
   </ItemGroup>
 

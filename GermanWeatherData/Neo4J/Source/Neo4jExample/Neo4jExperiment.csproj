@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo4j.Driver" Version="1.6.0-rc1" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Neo4j.Driver" Version="1.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="TinyCsvParser" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Experiments.Common\Experiments.Common.csproj" />
+    <ProjectReference Include="..\..\..\Common\Experiments.Common\Experiments.Common.csproj" />
   </ItemGroup>
 
 </Project>

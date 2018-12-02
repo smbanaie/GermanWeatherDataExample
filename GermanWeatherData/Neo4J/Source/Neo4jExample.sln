@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo4jExperiment", "Neo4jExa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo4jExperiment.ConsoleApp", "Neo4jExample.ConsoleApp\Neo4jExperiment.ConsoleApp.csproj", "{6E8F688E-232C-43C6-9E94-3605E6890CE9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experiments.Common", "..\Common\Experiments.Common\Experiments.Common.csproj", "{9C49F592-A38D-4424-B023-CA4E7CE9703B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experiments.Common", "..\..\Common\Experiments.Common\Experiments.Common.csproj", "{9C49F592-A38D-4424-B023-CA4E7CE9703B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
