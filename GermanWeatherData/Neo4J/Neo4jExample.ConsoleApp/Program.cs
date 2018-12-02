@@ -25,7 +25,7 @@ namespace Neo4jExperiment.ConsoleApp
 
         private static async Task ProcessLocalWeatherData(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var settings = ConnectionSettings.CreateBasicAuth("bolt://localhost:7687/db/flights", "neo4j", "test_pwd");
+            var settings = ConnectionSettings.CreateBasicAuth("bolt://localhost:7687/db/weather", "neo4j", "test_pwd");
 
             using (var client = new Neo4JClient(settings))
             {
@@ -53,18 +53,25 @@ namespace Neo4jExperiment.ConsoleApp
                 .Where(x => x.IsValid)
                 // And get the populated Entities:
                 .Select(x => x.Result)
-                // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                .GroupBy(x => new { x.Identifier })
-                // If there are duplicates then make a guess and select the first one:
-                .Select(x => x.First())
                 // Let's stay safe! Stop parallelism here:
                 .AsEnumerable()
-                // Convert to Neo4j:
-                .Select(x => LocalWeatherDataConverter.Convert(x))
-                // Evaluate:
-                .Batch(30000)
+                // Evaluate, prefer smaller batches for Neo4j:
+                .Batch(10000)
+                // Go Parallel again:
+                .AsParallel()
                 // As List:
-                .Select(x => x.ToList());
+                .Select(batch =>
+                {
+                    return batch
+                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
+                        .GroupBy(x => new {x.Identifier})
+                        // If there are duplicates then make a guess and select the first one:
+                        .Select(x => x.First())
+                        // Convert to Neo4j:
+                        .Select(x => LocalWeatherDataConverter.Convert(x))
+                        // And evaluate to prevent multiple iterations:
+                        .ToList();                   
+                });
 
             foreach (var batch in batches)
             {
@@ -98,18 +105,25 @@ namespace Neo4jExperiment.ConsoleApp
                 .Where(x => x.IsValid)
                 // And get the populated Entities:
                 .Select(x => x.Result)
-                // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                .GroupBy(x => new { x.StationIdentifier, x.TimeStamp })
-                // If there are duplicates then make a guess and select the first one:
-                .Select(x => x.First())
                 // Let's stay safe! Stop parallelism here:
                 .AsEnumerable()
-                // Convert to Neo4j:
-                .Select(x => LocalWeatherDataConverter.Convert(x))
-                // Evaluate:
+                // Evaluate, prefer smaller batches for Neo4j:
                 .Batch(30000)
+                // Go Parallel again:
+                .AsParallel()
                 // As List:
-                .Select(x => x.ToList());
+                .Select(batch =>
+                {
+                    return batch
+                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
+                        .GroupBy(x => new { x.StationIdentifier, x.TimeStamp })
+                        // If there are duplicates then make a guess and select the first one:
+                        .Select(x => x.First())
+                        // Convert to Neo4j:
+                        .Select(x => LocalWeatherDataConverter.Convert(x))
+                        // And evaluate to prevent multiple iterations:
+                        .ToList();
+                });
 
             foreach (var batch in batches)
             {
