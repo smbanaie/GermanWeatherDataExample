@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Npgsql;
 using NpgsqlTypes;
 using PostgreSQLCopyHelper;
@@ -43,6 +45,18 @@ namespace TimescaleExperiment.Sql.Client
         }
 
         public void Write(IList<LocalWeatherData> measurements)
+        {
+            try
+            {
+                InternalWrite(measurements);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}] [ERR] {e.Message}");
+            }
+        }
+
+        private void InternalWrite(IList<LocalWeatherData> measurements)
         {
             if(measurements == null)
             {

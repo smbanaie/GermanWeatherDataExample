@@ -21,6 +21,7 @@ namespace TimescaleExperiment.Sql.Client
                 Map("start_date", x => x.StartDate, NpgsqlDbType.TimestampTz);
                 MapNullable("end_date", x => x.EndDate, NpgsqlDbType.TimestampTz);
                 Map("station_height", x => x.StationHeight, NpgsqlDbType.Smallint);
+                Map("state", x => x.State, NpgsqlDbType.Varchar);
                 Map("latitude", x => x.Latitude, NpgsqlDbType.Real);
                 Map("longitude", x => x.Longitude, NpgsqlDbType.Real);
             }

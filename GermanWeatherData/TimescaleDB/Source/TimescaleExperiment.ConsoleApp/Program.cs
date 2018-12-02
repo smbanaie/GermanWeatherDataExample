@@ -2,12 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
 using Experiments.Common.Csv.Extensions;
 using Experiments.Common.Csv.Parser;
+using Experiments.Common.Extensions;
 using TimescaleExperiment.Sql.Client;
 
 namespace TimescaleExperiment.ConsoleApp
@@ -24,7 +25,7 @@ namespace TimescaleExperiment.ConsoleApp
             {
                 @"D:\datasets\CDC\zehn_min_tu_Beschreibung_Stationen.txt"
             };
-            
+
             foreach (var csvStationDataFile in csvStationDataFiles)
             {
                 ProcessStationData(csvStationDataFile);
@@ -37,35 +38,38 @@ namespace TimescaleExperiment.ConsoleApp
             {
                 ProcessLocalWeatherData(csvWeatherDataFile);
             }
+
+            Console.WriteLine("[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}]  Import Finished");
+            Console.ReadLine();
         }
 
         private static void ProcessStationData(string csvFilePath)
         {
-            Console.WriteLine($"Processing File: {csvFilePath}");
+            Console.WriteLine($"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}] Processing File: {csvFilePath}");
 
             // Construct the Batch Processor:
             var processor = new StationBatchProcessor(ConnectionString);
 
             // Access to the List of Parsers:
-            Parsers
+            var batches = Parsers
                 // Use the Station Parser:
                 .StationParser
                 // Read the File:
                 .ReadFromFile(csvFilePath, Encoding.UTF8, 2)
-                // As an Observable:
-                .ToObservable()
+                // Get the Valid Results:
+                .Where(x => x.IsValid)
+                // And get the populated Entities:
+                .Select(x => x.Result)
+                // If there is no WBAN, do not process the record:
+                .Where(x => !string.IsNullOrWhiteSpace(x.Identifier))
+                // Stop Parallelism:
+                .AsEnumerable()
                 // Batch in 10000 Entities / or wait 1 Second:
-                .Buffer(TimeSpan.FromSeconds(1), 10000)
+                .Batch(70000)
                 // And subscribe to the Batch
-                .Subscribe(records =>
+                .Select(records =>
                 {
-                    var validRecords = records
-                        // Get the Valid Results:
-                        .Where(x => x.IsValid)
-                        // And get the populated Entities:
-                        .Select(x => x.Result)
-                        // If there is no WBAN, do not process the record:
-                        .Where(x => !string.IsNullOrWhiteSpace(x.Identifier))
+                    var batch = records
                         // Group By WBAN to avoid duplicate Stations in the Batch:
                         .GroupBy(x => x.Identifier)
                         // Only Select the First Station:
@@ -75,39 +79,45 @@ namespace TimescaleExperiment.ConsoleApp
                         // Evaluate:
                         .ToList();
 
-                    // Finally write them with the Batch Writer:
-                    processor.Write(validRecords);
+                    return batch;
                 });
+
+
+            foreach (var batch in batches)
+            {
+                // Finally write them with the Batch Writer:
+                processor.Write(batch);
+            }
         }
 
 
         private static void ProcessLocalWeatherData(string csvFilePath)
         {
-            Console.WriteLine($"Processing File: {csvFilePath}");
+            Console.WriteLine($"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}] Processing File: {csvFilePath}");
 
             // Construct the Batch Processor:
             var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
 
             // Access to the List of Parsers:
-            Parsers
+            var batches = Parsers
                 // Use the LocalWeatherData Parser:
                 .LocalWeatherDataParser
                 // Read the File:
                 .ReadFromFile(csvFilePath, Encoding.UTF8, 1)
+                // Get the Valid Results:
+                .Where(x => x.IsValid)
+                // And get the populated Entities:
+                .Select(x => x.Result)
                 // As an Observable:
-                .ToObservable()
+                .AsEnumerable()
                 // Batch in 80000 Entities / or wait 1 Second:
-                .Buffer(TimeSpan.FromSeconds(1), 80000)
+                .Batch(80000)
                 // And subscribe to the Batch
-                .Subscribe(records =>
+                .Select(records =>
                 {
-                    var validRecords = records
-                        // Get the Valid Results:
-                        .Where(x => x.IsValid)
-                        // And get the populated Entities:
-                        .Select(x => x.Result)
+                    var batch = records
                         // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                        .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
+                        .GroupBy(x => new { x.StationIdentifier, x.TimeStamp })
                         // If there are duplicates then make a guess and select the first one:
                         .Select(x => x.First())
                         // Convert into the Sql Data Model:
@@ -115,14 +125,19 @@ namespace TimescaleExperiment.ConsoleApp
                         // Evaluate:
                         .ToList();
 
-                    // Finally write them with the Batch Writer:
-                    processor.Write(validRecords);
+                    return batch;
                 });
+
+
+            foreach (var batch in batches)
+            {
+                // Finally write them with the Batch Writer:
+                processor.Write(batch);
+            }
         }
 
         private static string[] GetFilesFromFolder(string directory)
         {
-            
             return Directory.GetFiles(directory, "produkt_zehn_min_*.txt").ToArray();
         }
     }
