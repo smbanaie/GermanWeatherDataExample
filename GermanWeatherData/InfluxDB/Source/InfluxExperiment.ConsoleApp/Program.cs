@@ -56,21 +56,29 @@ namespace InfluxExperiment.ConsoleApp
                 .Where(x => x.IsValid)
                 // And get the populated Entities:
                 .Select(x => x.Result)
-                // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
-                // If there are duplicates then make a guess and select the first one:
-                .Select(x => x.First())
                 // Let's stay safe! Stop parallelism here:
                 .AsEnumerable()
                 // Evaluate:
-                .Batch(30000);
+                .Batch(30000)
+                // Convert in Parallel again:
+                .AsParallel()
+                // Make sure there is no duplicate measurement for a Station and Timestamp in a Batch:
+                .Select(batch =>
+                {
+                    var measurements = batch
+                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
+                        .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
+                        // If there are duplicates then make a guess and select the first one:
+                        .Select(x => x.First());
+
+                    // Convert each Batch into a LineProtocolPayload:
+                    return LocalWeatherDataConverter.Convert(measurements);
+                });
 
             foreach (var batch in batches)
             {
-                var payload = LocalWeatherDataConverter.Convert(batch);
-
                 // Finally write them with the Batch Writer:
-                var result = await processor.WriteAsync(payload, cancellationToken);
+                var result = await processor.WriteAsync(batch, cancellationToken);
 
                 if (!result.Success)
                 {
