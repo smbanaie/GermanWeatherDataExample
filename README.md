@@ -22,31 +22,9 @@ of ``37 GB``. More Queries and Performance analysis to follow!
 ### InfluxDB ###
 
 InfluxDB 1.7.1 is currently unable to import the entire dataset. It consumes too much RAM under load and could not write 
-the batches anymore. I already tried switching to disk-based indices (``tsi1``) in the configuration, but it didn't change 
-the excessive memory consumption.
+the batches anymore. After reading through documentation I am quite confident, that the Retention Policy has to be adjusted, so that the shards do not stay in memory forever: 
 
-[Paul Yuan](http://puyuan.github.io/influxdb-tag-cardinality-memory-performance) has written a blog post on a similar problem:
-
-> However, there is a huge caveat here. In my implementation of a 200MB dataset, influxDB quickly consumed my 
-> entire 12GB of memory. Memory usage stayed at 95% and never seemed to be declining, not until I killed the 
-> process. There was some discussion about memory leak and one on WAL log not flushed fast enough.
-
-... the post goes on to explain:
-
-> The real problem was due to tags, especially its cardinality. [...] Basically, influxdb constructs an inverted 
-> index in memory, growing with the cardinality of the tags. [...] When influxdb counts cardinality in a Measurement, 
-> it counts the combination of all tags. For example, if my measurement has the following tags: 3 os, 200 devices, 
-> 3 browsers, then the cardinality is 3 x 200 x 3=1800.
-
-The thing is: I anticipated something like this and made sure I don't have too many tags. Currently the measurements only 
-consist the Station Identifier (505 Stations) and a Quality Code (3 Values) as tags. So the cardinality of the tags 
-isn't too high and the tags are not highly dynamic.
-
-Probably helpful links for further research:
-
-* http://puyuan.github.io/influxdb-tag-cardinality-memory-performance
-* https://github.com/influxdata/influxdb/issues/3967
-* https://github.com/influxdata/influxdb/issues/5685
+* https://www.influxdata.com/blog/tldr-influxdb-tech-tips-march-16-2017/
 * https://docs.influxdata.com/influxdb/v1.7/guides/hardware_sizing/
 
 ## Resources ##
