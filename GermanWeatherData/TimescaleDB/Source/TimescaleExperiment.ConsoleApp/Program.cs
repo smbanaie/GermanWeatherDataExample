@@ -8,57 +8,22 @@ using System.Text;
 using Experiments.Common.Csv.Extensions;
 using Experiments.Common.Csv.Parser;
 using Experiments.Common.Extensions;
-using log4net;
-using log4net.Appender;
-using log4net.Core;
-using log4net.Layout;
-using log4net.Repository.Hierarchy;
+using NLog;
+using NLog.Config;
 using TimescaleExperiment.Sql.Client;
 
 namespace TimescaleExperiment.ConsoleApp
 {
     public class Program
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(Program));
-
         // The ConnectionString used to decide which database to connect to:
         private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Keepalive=600;Database=sampledb;User Id=philipp;Password=test_pwd;";
 
-        // Initialize Log4Net:
-        public static void InitializeLog4Net()
-        {
-            Hierarchy hierarchy = (Hierarchy) LogManager.GetRepository(typeof(Program).Assembly);
-            
-            PatternLayout patternLayout = new PatternLayout();
-            patternLayout.ConversionPattern = "%date [%thread] %-5level %logger - %message%newline";
-            patternLayout.ActivateOptions();
-
-            RollingFileAppender rollingFileAppender = new RollingFileAppender();
-            rollingFileAppender.AppendToFile = false;
-            rollingFileAppender.File = @"C:\temp\log.txt";
-            rollingFileAppender.Layout = patternLayout;
-            rollingFileAppender.MaxSizeRollBackups = 5;
-            rollingFileAppender.MaximumFileSize = "10MB";
-            rollingFileAppender.RollingStyle = RollingFileAppender.RollingMode.Size;
-            rollingFileAppender.StaticLogFileName = true;
-            rollingFileAppender.ActivateOptions();
-            rollingFileAppender.Threshold = Level.Error;
-
-            hierarchy.Root.AddAppender(rollingFileAppender);
-
-            ConsoleAppender consoleAppender = new ConsoleAppender();
-            consoleAppender.Layout = patternLayout;
-            consoleAppender.Threshold = Level.Debug;
-
-            hierarchy.Root.AddAppender(consoleAppender);
-
-            hierarchy.Root.Level = Level.Debug;
-            hierarchy.Configured = true;
-        }
+        private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
         {
-            InitializeLog4Net();
+            LogManager.Configuration = new XmlLoggingConfiguration("nlog.config");
 
             // Import all Stations:
             var csvStationDataFiles = new[]
