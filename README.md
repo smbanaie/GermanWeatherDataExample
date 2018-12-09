@@ -39,8 +39,8 @@ the excessive memory consumption.
 > 3 browsers, then the cardinality is 3 x 200 x 3=1800.
 
 The thing is: I anticipated something like this and made sure I don't have too many tags. Currently the measurements only 
-consist the Station Identifier (505 Stations) and a Quality Code (3 Values). So the cardinality of the tags shouldn't be too 
-high and the tags are not highly dynamic.
+consist the Station Identifier (505 Stations) and a Quality Code (3 Values) as tags. So the cardinality of the tags 
+isn't too high and the tags are not highly dynamic.
 
 Probably helpful links for further research:
 
