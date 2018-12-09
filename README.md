@@ -16,9 +16,8 @@ The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
 ### TimescaleDB ###
 
-TimescaleDB was able to import the entire dataset. The final database has ``406241469`` measurements and has a file size of ``37 GB``.
-
-More Queries and Performance analysis to follow.
+TimescaleDB was able to import the entire dataset. The final database has ``406241469`` measurements and has a file size 
+of ``37 GB``. More Queries and Performance analysis to follow!
 
 ### InfluxDB ###
 
