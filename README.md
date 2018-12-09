@@ -8,7 +8,7 @@ In the project I want to benchmark [TimescaleDB], [Elasticsearch], [SQL Server] 
 
 ## Dataset ##
 
-The [DWD Open Data] portal of the [Deutscher Wetterdienst (DWD)] gives access to the historical weather data in Germany. I decided to analyze the available historical Air Temperature data for Germany given in a 10 minute resolution ([FTP](https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/historical/)). If you want to recreate the example, you can find the list of files here: [GermanWeatherDataExample/Resources/files.txt](https://github.com/bytefish/GermanWeatherDataExample/blob/master/GermanWeatherDataExample/Resources/files.txt).
+The [DWD Open Data] portal of the [Deutscher Wetterdienst (DWD)] gives access to the historical weather data in Germany. I decided to analyze the available historical Air Temperature data for Germany given in a 10 minute resolution ([FTP](https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/historical/)). If you want to recreate the example, you can find the list of files here: [GermanWeatherDataExample/Resources/files.txt](https://github.com/bytefish/GermanWeatherDataExample/blob/master/GermanWeatherData/Resources/files.txt).
 
 The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
