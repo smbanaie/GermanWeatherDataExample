@@ -31,21 +31,26 @@ namespace InfluxExperiment.ConsoleApp
         {
             LogManager.Configuration = new XmlLoggingConfiguration("nlog.config");
 
-            ProcessLocalWeatherData().GetAwaiter().GetResult();
+            ProcessLocalWeatherData();
+
+            if (log.IsInfoEnabled)
+            {
+                log.Info("Importing Data for Database weather_data has finished");
+            }
         }
 
-        private static async Task ProcessLocalWeatherData()
+        private static void ProcessLocalWeatherData()
         {
             // Import 10 Minute CDC Weather Data:
             var csvWeatherDataFiles = GetFilesFromFolder(@"D:\datasets\CDC");
 
             foreach (var csvWeatherDataFile in csvWeatherDataFiles)
             {
-                await ProcessLocalWeatherData(csvWeatherDataFile);
+                ProcessLocalWeatherData(csvWeatherDataFile);
             }
         }
 
-        private static async Task ProcessLocalWeatherData(string csvFilePath, CancellationToken cancellationToken = default(CancellationToken))
+        private static void ProcessLocalWeatherData(string csvFilePath)
         {
             if (log.IsInfoEnabled)
             {
@@ -74,14 +79,27 @@ namespace InfluxExperiment.ConsoleApp
 
             foreach (var batch in batches)
             {
-                var result = await processor.WriteAsync(batch, cancellationToken);
-                
-                // Log all unsuccessful writes:
-                if (!result.Success)
+                try
                 {
+                    var result = processor.WriteAsync(batch).GetAwaiter().GetResult();
+
+                    // Log all unsuccessful writes, but do not quit execution:
+                    if (!result.Success)
+                    {
+                        if (log.IsErrorEnabled)
+                        {
+                            log.Error(result.ErrorMessage);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Some Pokemon Exception Handling here. I am seeing TaskCanceledExceptions with the 
+                    // InfluxDB .NET Client. At the same time I do not want to quit execution, because 
+                    // some batches fail:
                     if (log.IsErrorEnabled)
                     {
-                        log.Error(result.ErrorMessage);
+                        log.Error(e, "Error occured writing InfluxDB Payload");
                     }
                 }
             }
