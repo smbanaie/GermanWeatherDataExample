@@ -46,6 +46,8 @@ Probably helpful links for further research:
 
 * http://puyuan.github.io/influxdb-tag-cardinality-memory-performance
 * https://github.com/influxdata/influxdb/issues/3967
+* https://github.com/influxdata/influxdb/issues/5685
+* https://docs.influxdata.com/influxdb/v1.7/guides/hardware_sizing/
 
 ## Resources ##
 
