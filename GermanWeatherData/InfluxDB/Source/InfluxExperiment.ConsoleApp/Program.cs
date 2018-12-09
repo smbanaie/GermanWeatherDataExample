@@ -20,7 +20,6 @@ namespace InfluxExperiment.ConsoleApp
 {
     public class Program
     {
-
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         // The ConnectionString used to decide which database to connect to:
