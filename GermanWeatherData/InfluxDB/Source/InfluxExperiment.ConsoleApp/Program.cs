@@ -13,11 +13,16 @@ using Experiments.Common.Csv.Parser;
 using Experiments.Common.Extensions;
 using InfluxExperiment.Converters;
 using InfluxExperiment.Influx.Client;
+using NLog;
+using NLog.Config;
 
 namespace InfluxExperiment.ConsoleApp
 {
     public class Program
     {
+
+        private static readonly ILogger log = LogManager.GetCurrentClassLogger();
+
         // The ConnectionString used to decide which database to connect to:
         private static readonly string ConnectionString = @"http://localhost:8086";
 
@@ -25,6 +30,8 @@ namespace InfluxExperiment.ConsoleApp
 
         public static void Main(string[] args)
         {
+            LogManager.Configuration = new XmlLoggingConfiguration("nlog.config");
+
             ProcessLocalWeatherData().GetAwaiter().GetResult();
         }
 
@@ -41,7 +48,10 @@ namespace InfluxExperiment.ConsoleApp
 
         private static async Task ProcessLocalWeatherData(string csvFilePath, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Console.WriteLine($"Processing File: {csvFilePath}");
+            if (log.IsInfoEnabled)
+            {
+                log.Info($"Processing File: {csvFilePath}");
+            }
 
             // Construct the Batch Processor:
             var processor = new LocalWeatherDataBatchProcessor(ConnectionString, Database);
@@ -60,30 +70,20 @@ namespace InfluxExperiment.ConsoleApp
                 .AsEnumerable()
                 // Evaluate:
                 .Batch(30000)
-                // Convert in Parallel again:
-                .AsParallel()
-                // Make sure there is no duplicate measurement for a Station and Timestamp in a Batch:
-                .Select(batch =>
-                {
-                    var measurements = batch
-                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                        .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
-                        // If there are duplicates then make a guess and select the first one:
-                        .Select(x => x.First());
-
-                    // Convert each Batch into a LineProtocolPayload:
-                    return LocalWeatherDataConverter.Convert(measurements);
-                });
+                // Convert each Batch into a LineProtocolPayload:
+                .Select(measurements => LocalWeatherDataConverter.Convert(measurements));
 
             foreach (var batch in batches)
             {
-                // Finally write them with the Batch Writer:
                 var result = await processor.WriteAsync(batch, cancellationToken);
-
+                
+                // Log all unsuccessful writes:
                 if (!result.Success)
                 {
-                    // Maybe throw an exception? Maybe use a Logger here?
-                    Console.WriteLine($"[ERROR] {result.ErrorMessage}");
+                    if (log.IsErrorEnabled)
+                    {
+                        log.Error(result.ErrorMessage);
+                    }
                 }
             }
         }
