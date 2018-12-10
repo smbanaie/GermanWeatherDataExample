@@ -21,9 +21,7 @@ of ``37 GB``. Nothing had been changed in the TimeseriesDB configuration. More Q
 
 ### InfluxDB ###
 
-InfluxDB 1.7.1 without any configuration is unable to import the entire dataset. It consumes too much RAM under load and 
-could not write the batches anymore. After reading through documentation I am quite confident, that the Retention Policy 
-has to be adjusted, so that the shards do not stay in memory forever: 
+InfluxDB 1.7.1 is unable to import the entire dataset without changes to the default configuration. It consumes too much RAM under load and could not write the batches anymore. After reading through documentation I am quite confident, that the Retention Policy has to be adjusted, so that the shards do not stay in memory forever: 
 
 * https://www.influxdata.com/blog/tldr-influxdb-tech-tips-march-16-2017/
 * https://docs.influxdata.com/influxdb/v1.7/guides/hardware_sizing/
