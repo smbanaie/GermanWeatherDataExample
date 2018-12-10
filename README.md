@@ -17,15 +17,38 @@ The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 ### TimescaleDB ###
 
 TimescaleDB was able to import the entire dataset. The final database has ``406241469`` measurements and has a file size 
-of ``37 GB``. More Queries and Performance analysis to follow!
+of ``37 GB``. Nothing had been changed in the TimeseriesDB configuration. More Queries and Performance analysis to follow!
 
 ### InfluxDB ###
 
-InfluxDB 1.7.1 is currently unable to import the entire dataset. It consumes too much RAM under load and could not write 
-the batches anymore. After reading through documentation I am quite confident, that the Retention Policy has to be adjusted, so that the shards do not stay in memory forever: 
+InfluxDB 1.7.1 without any configuration is unable to import the entire dataset. It consumes too much RAM under load and 
+could not write the batches anymore. After reading through documentation I am quite confident, that the Retention Policy 
+has to be adjusted, so that the shards do not stay in memory forever: 
 
 * https://www.influxdata.com/blog/tldr-influxdb-tech-tips-march-16-2017/
 * https://docs.influxdata.com/influxdb/v1.7/guides/hardware_sizing/
+
+It's because the default configuration of InfluxDB is optimized for realtime data with a short [retention duration] and a 
+short [shard duration]. This makes InfluxDB chewing up the entire RAM, just because too many shards are created and the 
+cached data is never written to disk actually.
+
+So I am now creating the database using ``DURATION`` set to infinite (``inf``), to keep measurements forever. The 
+``SHARD DURATION`` is set to 4 weeks for limiting the number of shards being created during the import:
+
+```
+CREATE DATABASE "weather_data" WITH DURATION inf REPLICATION 1 SHARD DURATION 4w NAME "weather_data_policy"
+```
+
+In the ``influxdb.conf`` I am setting the ``cache-snapshot-write-cold-duration`` to 5 seconds for flushing the caches more 
+agressively:
+
+```
+cache-snapshot-write-cold-duration = "5s"
+```
+
+[retention duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#duration
+[shard duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#shard-duration
+
 
 ## Resources ##
 

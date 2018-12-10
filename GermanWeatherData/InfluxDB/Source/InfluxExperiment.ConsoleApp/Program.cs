@@ -73,7 +73,7 @@ namespace InfluxExperiment.ConsoleApp
                 // Let's stay safe! Stop parallelism here:
                 .AsEnumerable()
                 // Evaluate:
-                .Batch(50000)
+                .Batch(10000)
                 // Convert each Batch into a LineProtocolPayload:
                 .Select(measurements => LocalWeatherDataConverter.Convert(measurements));
 
