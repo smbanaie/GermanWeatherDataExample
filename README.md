@@ -25,9 +25,9 @@ InfluxDB was able to import the entire dataset. The final database has ``3987049
 of 7.91 GB. Please read below on the configuration changes necessary to make InfluxDB ingest the dataset. The difference 
 between the number of measurements for InfluxDB and TimeseriesDB will be part of further investigation.
 
-InfluxDB 1.7.1 without any configuration is unable to import the entire dataset. It consumes too much RAM under load and 
-could not write the batches anymore. After reading through documentation I am quite confident, that the Retention Policy 
-has to be adjusted, so that the shards do not stay in memory forever: 
+InfluxDB 1.7.1 is unable to import the entire dataset without changes to the default configuration.  It consumes too much 
+RAM under load and could not write the batches anymore. After reading through documentation I am quite confident, that the 
+Retention Policy has to be adjusted, so that the shards do not stay in memory forever: 
 
 * https://www.influxdata.com/blog/tldr-influxdb-tech-tips-march-16-2017/
 * https://docs.influxdata.com/influxdb/v1.7/guides/hardware_sizing/
