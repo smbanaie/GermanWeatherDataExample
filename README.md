@@ -21,6 +21,10 @@ of ``37 GB``. Nothing had been changed in the TimeseriesDB configuration. More Q
 
 ### InfluxDB ###
 
+InfluxDB was able to import the entire dataset. The final database has ``398704931`` measurements and has a file size 
+of 7.91 GB. Please read below on the configuration changes necessary to make InfluxDB ingest the dataset. The difference 
+between the number of measurements for InfluxDB and TimeseriesDB will be part of further investigation.
+
 InfluxDB 1.7.1 without any configuration is unable to import the entire dataset. It consumes too much RAM under load and 
 could not write the batches anymore. After reading through documentation I am quite confident, that the Retention Policy 
 has to be adjusted, so that the shards do not stay in memory forever: 
@@ -48,7 +52,6 @@ cache-snapshot-write-cold-duration = "5s"
 
 [retention duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#duration
 [shard duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#shard-duration
-
 
 ## Resources ##
 
