@@ -26,7 +26,7 @@ namespace ElasticExperiment.Elastic.Client
         {
         }
 
-        public ICreateIndexResponse CreateIndex()
+        public ICreateIndexResponse CreateIndex(Func<IndexSettingsDescriptor, IPromise<IndexSettings>> indexSettings)
         {
             var response = Client.IndexExists(IndexName);
 
@@ -36,7 +36,10 @@ namespace ElasticExperiment.Elastic.Client
 
             }
 
-            return Client.CreateIndex(IndexName, index => index.Mappings(mappings => mappings.Map<TEntity>(x => x.AutoMap())));
+            return Client
+                .CreateIndex(IndexName, index => index
+                    .Settings(settings => indexSettings(settings))
+                    .Mappings(mappings => mappings.Map<TEntity>(x => x.AutoMap())));
         }
 
         public IBulkResponse BulkInsert(IEnumerable<TEntity> entities)

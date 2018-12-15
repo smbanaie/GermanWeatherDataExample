@@ -53,6 +53,10 @@ cache-snapshot-write-cold-duration = "5s"
 [retention duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#duration
 [shard duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#shard-duration
 
+### Elasticsearch ###
+
+* https://www.elastic.co/guide/en/elasticsearch/reference/master/tune-for-indexing-speed.html
+
 ## Resources ##
 
 ### SQL Server ###
