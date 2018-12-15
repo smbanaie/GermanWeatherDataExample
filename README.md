@@ -100,12 +100,16 @@ enough RAM to play with:
 -Xmx6g
 ```
 
-And finally I wanted to make sure, that the Elasticsearch process isn't swapped out. According to the Elasticsearch documentation, 
-this can be configured in the ``config/elasticsearch.yml`` by adding:
+And finally I wanted to make sure, that the Elasticsearch process isn't swapped out. According to the Elasticsearch 
+documentation this can be configured in the ``config/elasticsearch.yml`` by adding:
 
 ```
 bootstrap.memory_lock: true
 ```
+
+More information on Heap Sizing and Swapping can be found at:
+
+* https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
 
 ## Resources ##
 
