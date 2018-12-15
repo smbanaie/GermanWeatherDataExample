@@ -55,7 +55,57 @@ cache-snapshot-write-cold-duration = "5s"
 
 ### Elasticsearch ###
 
+The default configuration of Elasticsearch 6.5.1 is not optimized for bulk loading large amounts of data into the 
+database. To improve the import for the initial load, the first I did was to disable indexing and replication by 
+creating the index with 0 Replicas (since it is all running local anyway) and disabling the Index Refresh Interval, 
+so the index isn't built on inserts.
+
+All the performance hints are taken from the Elasticsearch documentation at:
+
 * https://www.elastic.co/guide/en/elasticsearch/reference/master/tune-for-indexing-speed.html
+
+In Elasticsearch 6.5.1 these settings have to be configured as an index template apparently, instead of editing the 
+``config/elasticsearch.yml``. Anyways it can be easily be achieved with the NEST, the official .NET Connector for 
+Elasticsearch:
+
+```csharp
+// We are creating the Index with special indexing options for initial load, 
+// as suggested in the Elasticsearch documentation at [1].
+//
+// We disable the performance-heavy indexing during the initial load and also 
+// disable any replicas of the data. This comes at a price of not being able 
+// to query the data in realtime, but it will enhance the import speed.
+//
+// After the initial load I will revert to the standard settings for the Index
+// and set the default values for Shards and Refresh Interval.
+//
+// [1]: https://www.elastic.co/guide/en/elasticsearch/reference/master/tune-for-indexing-speed.html
+//
+client.CreateIndex(settings => settings
+    .NumberOfReplicas(0)
+    .RefreshInterval(-1));
+```
+
+Additionally I made sure I am running a 64-bit JVM, so the heap size can scale to more than 2 GB for fair comparisms 
+with systems like InfluxDB, that aggressively take ownership of the RAM. You can configure the Elasticsearch JVM settings 
+in the ``config/jvm.options`` file.
+
+I have set the initial and maximum size of the total heap space to ``6 GB``, so Elasticsearch should be able to allocate 
+enough RAM to play with:
+
+```
+# Xms represents the initial size of total heap space
+# Xmx represents the maximum size of total heap space
+-Xms6g
+-Xmx6g
+```
+
+And finally I wanted to make sure, that the Elasticsearch process isn't swapped out. According to the Elasticsearch documentation, 
+this can be configured in the ``config/elasticsearch.yml`` by adding:
+
+```
+bootstrap.memory_lock: true
+```
 
 ## Resources ##
 
