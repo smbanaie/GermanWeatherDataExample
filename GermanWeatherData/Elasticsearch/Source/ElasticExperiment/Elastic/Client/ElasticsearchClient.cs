@@ -39,7 +39,7 @@ namespace ElasticExperiment.Elastic.Client
             return Client.CreateIndex(IndexName, index => index.Mappings(mappings => mappings.Map<TEntity>(x => x.AutoMap())));
         }
 
-        public IBulkResponse BulkInsert(IList<TEntity> entities)
+        public IBulkResponse BulkInsert(IEnumerable<TEntity> entities)
         {
             var request = new BulkDescriptor();
 

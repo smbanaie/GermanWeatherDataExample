@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -10,8 +9,8 @@ using System.Text;
 using ElasticExperiment.Converters;
 using ElasticExperiment.Elastic.Client;
 using Experiments.Common.Csv.Extensions;
-using Experiments.Common.Csv.Model;
 using Experiments.Common.Csv.Parser;
+using Experiments.Common.Extensions;
 
 namespace ElasticExperiment.ConsoleApp
 {
@@ -44,32 +43,24 @@ namespace ElasticExperiment.ConsoleApp
             // Make Sure the weather_data Index we insert to exists:
             client.CreateIndex();
 
-            Parsers
+            var batches = Parsers
                 .StationParser
+                // Skip first two rows:
                 .ReadFromFile(csvStationDataFile, Encoding.UTF8, 2)
-                // As an Observable:
-                .ToObservable()
-                // Batch in 80000 Entities / or wait 1 Second:
-                .Buffer(TimeSpan.FromSeconds(1), 80000)
-                // And subscribe to the Batch
-                .Subscribe(records =>
-                {
-                    var validRecords = records
-                        // Get the Valid Results:
-                        .Where(x => x.IsValid)
-                        // And get the populated Entities:
-                        .Select(x => x.Result)
-                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                        .GroupBy(x => new { x.Identifier })
-                        // If there are duplicates then make a guess and select the first one:
-                        .Select(x => x.First())
-                        // Convert to the Elastic Representation:
-                        .Select(x => LocalWeatherDataConverter.Convert(x))
-                        // Evaluate:
-                        .ToList();
+                // Get the Valid Results:
+                .Where(x => x.IsValid)
+                // And get the populated Entities:
+                .Select(x => x.Result)
+                // Convert to the Elastic Representation:
+                .Select(x => LocalWeatherDataConverter.Convert(x))
+                // Batch:
+                .Batch(20000);
 
-                    client.BulkInsert(validRecords);
-                });
+            foreach (var batch in batches)
+            {
+                client.BulkInsert(batch);
+            }
+                   
         }
 
         private static void ProcessLocalWeatherData(string csvFilePath)
@@ -83,34 +74,25 @@ namespace ElasticExperiment.ConsoleApp
             Console.WriteLine($"Processing File: {csvFilePath}");
             
             // Access to the List of Parsers:
-            Parsers
+            var batches = Parsers
                 // Use the LocalWeatherData Parser:
                 .LocalWeatherDataParser
-                // Read the File:
+                // Read the File, Skip first row:
                 .ReadFromFile(csvFilePath, Encoding.UTF8, 1)
-                // As an Observable:
-                .ToObservable()
-                // Batch in 80000 Entities / or wait 1 Second:
-                .Buffer(TimeSpan.FromSeconds(1), 80000)
-                // And subscribe to the Batch
-                .Subscribe(records =>
-                {
-                    var validRecords = records
-                        // Get the Valid Results:
-                        .Where(x => x.IsValid)
-                        // And get the populated Entities:
-                        .Select(x => x.Result)
-                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                        .GroupBy(x => new {x.StationIdentifier, x.TimeStamp})
-                        // If there are duplicates then make a guess and select the first one:
-                        .Select(x => x.First())
-                        // Convert to the Elastic Representation:
-                        .Select(x => LocalWeatherDataConverter.Convert(x))
-                        // Evaluate:
-                        .ToList();
+                // Get the Valid Results:
+                .Where(x => x.IsValid)
+                // And get the populated Entities:
+                .Select(x => x.Result)
+                // Convert to ElasticSearch Entity:
+                .Select(x => LocalWeatherDataConverter.Convert(x))
+                // Batch Entities:
+                .Batch(80000);
 
-                    client.BulkInsert(validRecords);
-                });
+
+            foreach (var batch in batches)
+            {
+                client.BulkInsert(batch);
+            }
         }
 
         private static string[] GetFilesFromFolder(string directory)
