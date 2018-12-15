@@ -17,13 +17,13 @@ The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 ### TimescaleDB ###
 
 TimescaleDB was able to import the entire dataset. The final database has ``406241469`` measurements and has a file size 
-of ``37 GB``. Nothing had been changed in the TimeseriesDB configuration. More Queries and Performance analysis to follow!
+of ``37 GB``. Nothing had been changed in the TimescaleDB configuration. More Queries and Performance analysis to follow!
 
 ### InfluxDB ###
 
 InfluxDB was able to import the entire dataset. The final database has ``398704931`` measurements and has a file size 
 of 7.91 GB. Please read below on the configuration changes necessary to make InfluxDB ingest the dataset. The difference 
-between the number of measurements for InfluxDB and TimeseriesDB will be part of further investigation.
+between the number of measurements for InfluxDB and TimescaleDB will be part of further investigation.
 
 InfluxDB 1.7.1 is unable to import the entire dataset without changes to the default configuration.  It consumes too much 
 RAM under load and could not write the batches anymore. After reading through documentation I am quite confident, that the 
@@ -54,6 +54,11 @@ cache-snapshot-write-cold-duration = "5s"
 [shard duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#shard-duration
 
 ### Elasticsearch ###
+
+Elasticsearch was able to import the entire dataset. The final database has ``406548765`` documents and has a file size 
+of ``52.9 GB``. Please read below on the the configuration changes necessary to make Elasticsearch ingest the dataset. The 
+difference in documents between TimescaleDB and Elasticsearch can be explained due to an accidental restart during the 
+first file import, this will be adjusted.
 
 The default configuration of Elasticsearch 6.5.1 is not optimized for bulk loading large amounts of data into the 
 database. To improve the import for the initial load, the first I did was to disable indexing and replication by 
