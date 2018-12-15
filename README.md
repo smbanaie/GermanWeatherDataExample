@@ -109,7 +109,8 @@ bootstrap.memory_lock: true
 
 More information on Heap Sizing and Swapping can be found at:
 
-* https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
+* https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html (Guide to Heap Sizing)
+* https://www.elastic.co/blog/a-heap-of-trouble (Detailed article on the maximum JVM Heap Size)
 
 ## Resources ##
 
