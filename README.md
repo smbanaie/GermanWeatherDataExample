@@ -14,7 +14,7 @@ The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
 ## Benchmark Setup ##
 
-* Intel? Core? i5-3450 CPU
+* Intel® Core™ i5-3450 CPU
 * 16 GB RAM
 * Samsung SSD 860 EVO ([Specifications](https://www.samsung.com/semiconductor/minisite/ssd/product/consumer/860evo/))
 
@@ -169,5 +169,5 @@ More information on Heap Sizing and Swapping can be found at:
 
 [DWD Open Data]: https://opendata.dwd.de/
 [E-Government Act - EgovG]: http://www.gesetze-im-internet.de/englisch_egovg/index.html
-["Open-Data-Gesetz" (§ 12 a EGovG)]: https://www.bmi.bund.de/DE/themen/moderne-verwaltung/open-government/open-data/open-data-node.html
+["Open-Data-Gesetz" (§12a EGovG)]: https://www.bmi.bund.de/DE/themen/moderne-verwaltung/open-government/open-data/open-data-node.html
 [Deutscher Wetterdienst (DWD)]: https://www.dwd.de
