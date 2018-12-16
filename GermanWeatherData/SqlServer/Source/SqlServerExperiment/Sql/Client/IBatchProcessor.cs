@@ -7,6 +7,6 @@ namespace SqlServerExperiment.Sql.Client
 {
     public interface IBatchProcessor<TEntity>
     {
-        void Write(IList<TEntity> measurements);
+        void Write(IEnumerable<TEntity> measurements);
     }
 }

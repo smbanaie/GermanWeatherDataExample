@@ -19,14 +19,9 @@ namespace SqlServerExperiment.Sql.Client
             this.connectionString = connectionString;
         }
 
-        public void Write(IList<LocalWeatherData> measurements)
+        public void Write(IEnumerable<LocalWeatherData> measurements)
         {
             if(measurements == null)
-            {
-                return;
-            }
-
-            if (measurements.Count == 0)
             {
                 return;
             }

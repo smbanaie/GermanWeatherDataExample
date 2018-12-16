@@ -19,14 +19,9 @@ namespace SqlServerExperiment.Sql.Client
             this.connectionString = connectionString;
         }
 
-        public void Write(IList<Station> stations)
+        public void Write(IEnumerable<Station> stations)
         {
             if(stations == null)
-            {
-                return;
-            }
-
-            if (stations.Count == 0)
             {
                 return;
             }
