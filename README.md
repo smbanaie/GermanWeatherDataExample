@@ -12,6 +12,12 @@ The [DWD Open Data] portal of the [Deutscher Wetterdienst (DWD)] gives access to
 
 The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
+## Benchmark Setup ##
+
+* Intel? Core? i5-3450 CPU
+* 16 GB RAM
+* Samsung SSD 860 EVO ([Specifications](https://www.samsung.com/semiconductor/minisite/ssd/product/consumer/860evo/))
+
 ## Status ##
 
 ### SQL Server 2017 ###
