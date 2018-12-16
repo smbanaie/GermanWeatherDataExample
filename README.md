@@ -14,16 +14,27 @@ The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
 ## Status ##
 
+### SQL Server 2017 ###
+
+The SQL Server 2017 was able to import the entire dataset. The final database has 406,242,465 measurements and a file 
+size of 12.6 GB. Nothing has been changed in the SQL Server configuration. More queries and performance analysis to follow!
+
+The import took 81.25 minutes, so the SQL Server was able to write 83,059 records per second.
+
 ### TimescaleDB ###
 
-TimescaleDB was able to import the entire dataset. The final database has ``406241469`` measurements and has a file size 
-of ``37 GB``. Nothing had been changed in the TimescaleDB configuration. More Queries and Performance analysis to follow!
+TimescaleDB was able to import the entire dataset. The final database has 406,241,469 measurements and has a file size 
+of 37 GB. Nothing had been changed in the TimescaleDB configuration. More queries and performance analysis to follow!
+
+The import took 690.5 minutes, so TimescaleDB was able to write 9,804 records per second.
 
 ### InfluxDB ###
 
-InfluxDB was able to import the entire dataset. The final database has ``398704931`` measurements and has a file size 
+InfluxDB was able to import the entire dataset. The final database has 398,704,931 measurements and has a file size 
 of 7.91 GB. Please read below on the configuration changes necessary to make InfluxDB ingest the dataset. The difference 
 between the number of measurements for InfluxDB and TimescaleDB will be part of further investigation.
+
+The import took 147 minutes, so InfluxDB was able to write 45,112 records per second.
 
 InfluxDB 1.7.1 is unable to import the entire dataset without changes to the default configuration.  It consumes too much 
 RAM under load and could not write the batches anymore. After reading through documentation I am quite confident, that the 
@@ -59,6 +70,8 @@ Elasticsearch was able to import the entire dataset. The final database has ``40
 of ``52.9 GB``. Please read below on the the configuration changes necessary to make Elasticsearch ingest the dataset. The 
 difference in documents between TimescaleDB and Elasticsearch can be explained due to an accidental restart during the 
 first file import, this will be adjusted.
+
+The import took 718.9 minutes, so Elasticsearch was able to write 9,425 records per second.
 
 The default configuration of Elasticsearch 6.5.1 is not optimized for bulk loading large amounts of data into the 
 database. To improve the import for the initial load, the first I did was to disable indexing and replication by 
