@@ -63,9 +63,8 @@ namespace TimescaleExperiment.ConsoleApp
                 // Sequential:
                 .AsEnumerable()
                 // Batch:
-                .Batch(100000);
-
-
+                .Batch(80000);
+            
             // Construct the Batch Processor:
             var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
 
