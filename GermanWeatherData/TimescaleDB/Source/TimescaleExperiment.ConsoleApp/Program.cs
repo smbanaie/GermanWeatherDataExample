@@ -17,23 +17,17 @@ namespace TimescaleExperiment.ConsoleApp
     public class Program
     {
         // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Keepalive=600;Database=sampledb;User Id=philipp;Password=test_pwd;";
+        private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Database=sampledb;User Id=philipp;Password=test_pwd;";
 
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
         {
             LogManager.Configuration = new XmlLoggingConfiguration("nlog.config");
-
-            // Import all Stations:
-            var csvStationDataFiles = new[]
+            
+            if (log.IsInfoEnabled)
             {
-                @"D:\datasets\CDC\zehn_min_tu_Beschreibung_Stationen.txt"
-            };
-
-            foreach (var csvStationDataFile in csvStationDataFiles)
-            {
-                ProcessStationData(csvStationDataFile);
+                log.Info("Import started");
             }
 
             // Import 10 Minute CDC Weather Data:
@@ -44,54 +38,9 @@ namespace TimescaleExperiment.ConsoleApp
                 ProcessLocalWeatherData(csvWeatherDataFile);
             }
 
-            Console.WriteLine("[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}]  Import Finished");
-            Console.ReadLine();
-        }
-
-        private static void ProcessStationData(string csvFilePath)
-        {
             if (log.IsInfoEnabled)
             {
-                log.Info($"Processing File: {csvFilePath}");
-            }
-
-            // Construct the Batch Processor:
-            var processor = new StationBatchProcessor(ConnectionString);
-
-            // Access to the List of Parsers:
-            var batches = Parsers
-                // Use the Station Parser:
-                .StationParser
-                // Read the File:
-                .ReadFromFile(csvFilePath, Encoding.UTF8, 2)
-                // Get the Valid Results:
-                .Where(x => x.IsValid)
-                // And get the populated Entities:
-                .Select(x => x.Result)
-                // If there is no WBAN, do not process the record:
-                .Where(x => !string.IsNullOrWhiteSpace(x.Identifier))
-                // Stop Parallelism:
-                .AsEnumerable()
-                // Batch in 10000 Entities / or wait 1 Second:
-                .Batch(20000)
-                // And subscribe to the Batch
-                .Select(records =>
-                {
-                    return records
-                        // Group By WBAN to avoid duplicate Stations in the Batch:
-                        .GroupBy(x => x.Identifier)
-                        // Only Select the First Station:
-                        .Select(x => x.First())
-                        // Convert into the Sql Data Model:
-                        .Select(x => Converters.Converters.Convert(x))
-                        // Evaluate:
-                        .ToList();
-                });
-
-            foreach (var batch in batches)
-            {
-                // Finally write them with the Batch Writer:
-                processor.Write(batch);
+                log.Info("Import finished");
             }
         }
 
@@ -109,23 +58,12 @@ namespace TimescaleExperiment.ConsoleApp
                 .Where(x => x.IsValid)
                 // And get the populated Entities:
                 .Select(x => x.Result)
-                // As an Observable:
+                // Convert into the Sql Data Model:
+                .Select(x => Converters.Converters.Convert(x))
+                // Sequential:
                 .AsEnumerable()
                 // Batch:
-                .Batch(50000)
-                // And subscribe to the Batch
-                .Select(records =>
-                {
-                    return records
-                        // Group by WBAN, Date and Time to avoid duplicates for this batch:
-                        .GroupBy(x => new { x.StationIdentifier, x.TimeStamp })
-                        // If there are duplicates then make a guess and select the first one:
-                        .Select(x => x.First())
-                        // Convert into the Sql Data Model:
-                        .Select(x => Converters.Converters.Convert(x))
-                        // Evaluate:
-                        .ToList();
-                });
+                .Batch(100000);
 
 
             // Construct the Batch Processor:

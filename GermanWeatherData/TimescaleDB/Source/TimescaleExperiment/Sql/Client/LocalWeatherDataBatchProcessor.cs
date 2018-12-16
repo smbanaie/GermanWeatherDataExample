@@ -46,7 +46,7 @@ namespace TimescaleExperiment.Sql.Client
             this.connectionString = connectionString;
         }
 
-        public void Write(IList<LocalWeatherData> measurements)
+        public void Write(IEnumerable<LocalWeatherData> measurements)
         {
             try
             {
@@ -61,14 +61,9 @@ namespace TimescaleExperiment.Sql.Client
             }
         }
 
-        private void InternalWrite(IList<LocalWeatherData> measurements)
+        private void InternalWrite(IEnumerable<LocalWeatherData> measurements)
         {
             if(measurements == null)
-            {
-                return;
-            }
-
-            if (measurements.Count == 0)
             {
                 return;
             }

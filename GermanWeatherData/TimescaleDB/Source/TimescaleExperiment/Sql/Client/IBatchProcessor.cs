@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace TimescaleExperiment.Sql.Client
 {
-    public interface IBatchProcessor<TEntity>
+    public interface IBatchProcessor<in TEntity>
     {
-        void Write(IList<TEntity> measurements);
+        void Write(IEnumerable<TEntity> measurements);
     }
 }

@@ -42,14 +42,9 @@ namespace TimescaleExperiment.Sql.Client
             this.processor = processor;
         }
 
-        public void Write(IList<Station> stations)
+        public void Write(IEnumerable<Station> stations)
         {
             if(stations == null)
-            {
-                return;
-            }
-
-            if (stations.Count == 0)
             {
                 return;
             }
