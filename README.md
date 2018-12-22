@@ -34,6 +34,82 @@ of 37 GB. Nothing had been changed in the TimescaleDB configuration. More querie
 
 The import took 690.5 minutes, so TimescaleDB was able to write 9,804 records per second.
 
+#### timescaledb-tune ####
+
+[timescaledb-tune]: https://github.com/timescale/timescaledb-tune
+
+I thought it may be due to a misconfigured environment, so I used [timescaledb-tune] to optimize the ``postgresql.config``, 
+which set the ``postgresql.config`` to the following values:
+
+```
+#------------------------------------------------------------------------------
+# RESOURCE USAGE (except WAL)
+#------------------------------------------------------------------------------
+
+# - Memory -
+
+shared_buffers = 512MB
+work_mem = 67254kB
+maintenance_work_mem = 2034MB
+dynamic_shared_memory_type = windows
+
+# - Kernel Resource Usage -
+
+shared_preload_libraries = 'timescaledb'
+
+# - Asynchronous Behavior -
+
+max_worker_processes = 4		# (change requires restart)
+max_parallel_workers_per_gather = 2	# taken from max_parallel_workers
+max_parallel_workers = 4		# maximum number of max_worker_processes that
+
+#------------------------------------------------------------------------------
+# WRITE AHEAD LOG
+#------------------------------------------------------------------------------
+
+# - Settings -
+
+wal_level = hot_standby
+wal_buffers = 16MB
+
+# - Checkpoints -
+
+max_wal_size = 8GB
+min_wal_size = 4GB
+checkpoint_completion_target = 0.9	
+
+#------------------------------------------------------------------------------
+# QUERY TUNING
+#------------------------------------------------------------------------------
+
+# - Planner Cost Constants -
+
+random_page_cost = 1.1
+effective_cache_size = 12206MB
+```
+
+But this configuration didn't increase the throughput for TimescaleDB.
+
+#### Turning off synchronous commits ####
+
+[Disk-write settings]: https://docs.timescale.com/v1.0/getting-started/configuring#disk-write
+
+The TimescaleDB docs write on [Disk-write settings]
+
+> Disk-write settings
+>
+> In order to increase write throughput, there are multiple settings to adjust the behaviour that PostgreSQL uses to write 
+> data to disk. We find the performance to be good with the default (safest) settings. If you want a bit of additional 
+> performance, you can set synchronous_commit = 'off'(PostgreSQL docs). Please note that when disabling ``sychronous_commit`` 
+> in this way, an operating system or database crash might result in some recent allegedly-committed transactions being 
+> lost. We actively discourage changing the ``fsync`` setting.
+
+So I decided to turn the ``synchronous_commit`` off by uncommenting the following line in the ``postgresql.config``:
+
+``synchronous_commit = off``
+
+With synchronous commits disabled the import took 247 minutes, so TimescaleDB was able to write 27,560 records per second.
+
 ### InfluxDB ###
 
 InfluxDB was able to import the entire dataset. The final database has 398,704,931 measurements and has a file size 
