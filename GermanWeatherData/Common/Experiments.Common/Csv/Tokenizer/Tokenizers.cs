@@ -11,16 +11,16 @@ namespace Experiments.Common.Csv.Tokenizer
         {
             get
             {
-                var columnDefinitions = new CustomFixedLengthTokenizer.ColumnDefinition[]
+                var columnDefinitions = new[]
                 {
-                    new CustomFixedLengthTokenizer.ColumnDefinition(0, 6),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(6, 14),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(15, 23),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(32, 39),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(43, 51),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(52, 61),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(61, 102),
-                    new CustomFixedLengthTokenizer.ColumnDefinition(102, 125),
+                    new FixedLengthTokenizer.ColumnDefinition(0, 6),
+                    new FixedLengthTokenizer.ColumnDefinition(6, 14),
+                    new FixedLengthTokenizer.ColumnDefinition(15, 23),
+                    new FixedLengthTokenizer.ColumnDefinition(32, 39),
+                    new FixedLengthTokenizer.ColumnDefinition(43, 51),
+                    new FixedLengthTokenizer.ColumnDefinition(52, 61),
+                    new FixedLengthTokenizer.ColumnDefinition(61, 102),
+                    new FixedLengthTokenizer.ColumnDefinition(102, 125),
                 };
 
                 return new CustomFixedLengthTokenizer(columnDefinitions, true);

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Experiments.Common.Csv.Converter;
 using Experiments.Common.Csv.Model;
 using TinyCsvParser.Mapping;
 using TinyCsvParser.TypeConverter;

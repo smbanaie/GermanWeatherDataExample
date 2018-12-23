@@ -5,7 +5,6 @@ using System;
 using Experiments.Common.Csv.Converter;
 using Experiments.Common.Csv.Model;
 using TinyCsvParser.Mapping;
-using TinyCsvParser.TypeConverter;
 
 namespace Experiments.Common.Csv.Mapper
 {
