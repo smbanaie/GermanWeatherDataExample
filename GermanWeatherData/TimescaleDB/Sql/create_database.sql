@@ -23,7 +23,7 @@ IF NOT EXISTS (
 
 CREATE TABLE sample.station
 (
-    identifier VARCHAR(5) NOT NULL,
+    identifier VARCHAR(5) PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
     start_date TIMESTAMPTZ,
     end_date TIMESTAMPTZ,

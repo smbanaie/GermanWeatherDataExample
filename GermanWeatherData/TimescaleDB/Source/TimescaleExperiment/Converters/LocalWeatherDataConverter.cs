@@ -9,7 +9,7 @@ using SqlStationDataType = TimescaleExperiment.Sql.Model.Station;
 
 namespace TimescaleExperiment.Converters
 {
-    public static class Converters
+    public static class LocalWeatherDataConverter
     {
         public static SqlLocalWeatherDataType Convert(CsvLocalWeatherDataType source)
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using Experiments.Common.Csv.Parser;
 using Experiments.Common.Extensions;
 using NLog;
 using NLog.Config;
+using TimescaleExperiment.Converters;
 using TimescaleExperiment.Sql.Client;
 
 namespace TimescaleExperiment.ConsoleApp
@@ -30,6 +32,11 @@ namespace TimescaleExperiment.ConsoleApp
                 log.Info("Import started");
             }
 
+            // Import the Stations:
+            var csvStationDataFile = @"D:\datasets\CDC\zehn_min_tu_Beschreibung_Stationen.txt";
+
+            ProcessStationData(csvStationDataFile);
+
             // Import 10 Minute CDC Weather Data:
             var csvWeatherDataFiles = GetFilesFromFolder(@"D:\datasets\CDC");
 
@@ -41,6 +48,29 @@ namespace TimescaleExperiment.ConsoleApp
             if (log.IsInfoEnabled)
             {
                 log.Info("Import finished");
+            }
+        }
+
+
+        private static void ProcessStationData(string csvFilePath)
+        {
+            log.Info($"Processing File: {csvFilePath}");
+
+            var batches = Parsers
+                .StationParser
+                .ReadFromFile(csvFilePath, Encoding.UTF8, 2)
+                .Where(x => x.IsValid)
+                .Select(x => x.Result)
+                .Select(x => LocalWeatherDataConverter.Convert(x))
+                .Batch(500);
+            
+            // Construct the Batch Processor:
+            var processor = new StationBatchProcessor(ConnectionString);
+
+            foreach (var batch in batches)
+            {
+                // Finally write them with the Batch Writer:
+                processor.Write(batch);
             }
         }
 
@@ -59,7 +89,7 @@ namespace TimescaleExperiment.ConsoleApp
                 // And get the populated Entities:
                 .Select(x => x.Result)
                 // Convert into the Sql Data Model:
-                .Select(x => Converters.Converters.Convert(x))
+                .Select(x => LocalWeatherDataConverter.Convert(x))
                 // Sequential:
                 .AsEnumerable()
                 // Batch:
