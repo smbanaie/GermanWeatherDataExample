@@ -10,6 +10,7 @@
 #install.packages("ggplot2")
 #install.packages("readr")
 #install.packages("sp")
+#install.packages("sf")
 
 library(DBI)
 library(dplyr)
@@ -19,8 +20,7 @@ library(viridis)
 library(ggthemes)
 library(ggplot2)
 library(readr)
-library(sp)
-library(rgdal)
+library(sf)
 
 # Connect to the Database:
 connection <- dbConnect(RPostgres::Postgres(),
@@ -36,20 +36,14 @@ query <- read_file("D:\\github\\GermanWeatherDataExample\\GermanWeatherData\\Tim
 # Query the Database: 
 stations <- dbGetQuery(connection, query)
 
-# Close ODBC Connection:
+# Close Postgres Connection:
 dbDisconnect(connection)
 
-# Load the US Shapefile:
-shape_germany <- read_sf('D:\\github\\GermanWeatherDataExample\\GermanWeatherData\\TimescaleDB\\R\\shapes\\Zensus_2011_Bundeslaender.shp')
+# Load the Germany Shapefile:
+germany_shp <- st_read('D:\\github\\GermanWeatherDataExample\\GermanWeatherData\\TimescaleDB\\R\\shapes\\Zensus_2011_Bundeslaender.shp')
 
-coords <- stations[c("longitude", "latitude")]
-
-# Making sure we are working with rows that don't have any blanks:
-coords <- coords[complete.cases(coords),]
-
-# Letting R know that these are specifically spatial coordinates:
-station_pts <- SpatialPoints(coords)
-
-
-plot(shape_germany$geometry)
-plot(station_pts, col="red", add=TRUE)
+ggplot(germany_shp) +
+    geom_sf() +
+    geom_point(data=stations, aes(x=longitude, y=latitude), color="red")
+    
+   
