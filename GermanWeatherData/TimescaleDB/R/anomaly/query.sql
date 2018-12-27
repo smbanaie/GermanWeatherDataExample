@@ -1,14 +1,6 @@
-WITH BoundedTimeSeries as (
-	SELECT dateadd(hour, datediff(hour, 0, Timestamp), 0) as Timestamp, Temperature
-	FROM [sample].[LocalWeatherData] weatherData
-	WHERE WBAN = '{{wban}}' AND Timestamp BETWEEN '{{start_date}}' and '{{end_date}}'
-),
-DistinctSeries as (
-	SELECT Timestamp, AVG(Temperature) as Temperature
-	FROM BoundedTimeSeries b
-	GROUP BY Timestamp
-)
-SELECT d.Timestamp as timestamp, d.Temperature as temperature
-FROM DistinctSeries d
-WHERE Temperature is not null
-ORDER BY Timestamp ASC
+SELECT s.identifier "station", s.longitude "lon", s.latitude "lat", date_trunc('hour', w.timestamp) "timestamp", avg(w.air_temperature_at_2m) "temperature"
+FROM sample.weather_data w
+    INNER JOIN sample.station s on w.station_identifier = s.identifier
+WHERE s.identifier = '{{station}}' AND (w.timestamp >= '{{start_date}}'::date AND w.timestamp < '{{end_date}}'::date)
+GROUP BY "station", "timestamp"
+ORDER BY "timestamp" ASC

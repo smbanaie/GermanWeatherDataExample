@@ -1,7 +1,10 @@
 # Copyright (c) Philipp Wagner. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-library(RODBC)
+#install.packages("devtools")
+#devtools::install_github("twitter/AnomalyDetection")
+
+library(DBI)
 library(dplyr)
 library(infuser)
 library(readr)
@@ -10,32 +13,35 @@ library(ggplot2)
 library(zoo)
 library(AnomalyDetection)
 
-# Connection String for the SQL Server Instance:
-connectionString <- "Driver=SQL Server;Server=.;Database=LocalWeatherDatabase;Trusted_Connection=Yes"
-
 # Connect to the Database:
-connection <- odbcDriverConnect(connectionString)
+connection <- dbConnect(RPostgres::Postgres(),
+                 dbname = 'sampledb', 
+                 host = 'localhost', # i.e. 'ec2-54-83-201-96.compute-1.amazonaws.com'
+                 port = 5432, # or any other port specified by your DBA
+                 user = 'philipp',
+                 password = 'pwd')
 
 # Read the SQL Query from an external file and infuse the variables. Keeps the Script clean:
-query <- read_file("D:\\github\\WeatherDataColumnStore\\WeatherDataColumnStore\\R\\anomaly\\query.sql") %>% infuse(wban = "12957", start_date="2014-01-01 00:00:00.000", end_date="2016-07-01 23:59:59.997", simple_character = TRUE) 
+query <- read_file("D:\\github\\GermanWeatherDataExample\\GermanWeatherData\\TimescaleDB\\R\\anomaly\\query.sql") %>% 
+    infuse(start_date='2016-01-01', end_date='2018-01-01', station='02497', simple_character = TRUE) 
 
 # Query the Database: 
-ts_temp <- sqlQuery(connection, query)
+temperatures <- dbGetQuery(connection, query)
 
-# Close ODBC Connection:
-odbcClose(connection)
+# Close Postgres Connection:
+dbDisconnect(connection)
 
 # Build a dense timeseries with all expected timestamps:
-ts_dense <- data.frame(timestamp=seq(as.POSIXct("2014-01-01"), as.POSIXct("2015-12-31"), by="hour"))
+timeseries <- data.frame(timestamp=seq(as.POSIXct("2016-01-01"), as.POSIXct("2017-12-31"), by="hour"))
 
 # Build the Dense series by left joining both series:
-ts_merged <- left_join(ts_dense, ts_temp, by = c("timestamp" = "timestamp"))
+timeseries <- left_join(timeseries, temperatures, by = c("timestamp" = "timestamp"))
 
-# Use zoo to interpolate missing values:
-ts_merged$interpolated_temperature <- na.approx(ts_merged$temperature)
+# Drop all NA and extrapolate Borders with rule=2:
+timeseries$temperature <- na.approx(timeseries$temperature, rule=2)
 
 # Detect Anomalies:
-res = AnomalyDetectionVec(ts_merged$interpolated_temperature, direction='both', period=8760, plot=TRUE)
+res = AnomalyDetectionVec(timeseries$temperature, direction='both', period=8760, plot=TRUE)
 
 # Plot the Anomalies:
 res$plot
