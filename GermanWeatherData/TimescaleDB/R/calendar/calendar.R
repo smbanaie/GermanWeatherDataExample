@@ -47,4 +47,4 @@ timeseries <- left_join(timeseries, temperatures, by = c("date" = "date")) %>%
 
 # Create the Plot:
 ggplot(timeseries, aes(dayOfMonth, monthOfYear, fill = temperature)) + 
-    geom_raster(hjust = 0, vjust = 0)
+    geom_raster()
