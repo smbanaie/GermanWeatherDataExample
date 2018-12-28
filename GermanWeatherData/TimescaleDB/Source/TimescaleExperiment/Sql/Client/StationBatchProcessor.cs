@@ -44,8 +44,8 @@ namespace TimescaleExperiment.Sql.Client
 
                 command.Parameters.Add("identifier", NpgsqlDbType.Varchar);
                 command.Parameters.Add("name", NpgsqlDbType.Varchar);
-                command.Parameters.Add("start_date", NpgsqlDbType.TimestampTz);
-                command.Parameters.Add("end_date", NpgsqlDbType.TimestampTz);
+                command.Parameters.Add("start_date", NpgsqlDbType.Timestamp);
+                command.Parameters.Add("end_date", NpgsqlDbType.Timestamp);
                 command.Parameters.Add("station_height", NpgsqlDbType.Smallint);
                 command.Parameters.Add("state", NpgsqlDbType.Varchar);
                 command.Parameters.Add("latitude", NpgsqlDbType.Real);
