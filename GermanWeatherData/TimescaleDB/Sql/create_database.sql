@@ -25,13 +25,12 @@ CREATE TABLE sample.station
 (
     identifier VARCHAR(5) PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
-    start_date TIMESTAMPTZ,
-    end_date TIMESTAMPTZ,
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
     station_height SMALLINT,
     state VARCHAR(255),
     latitude REAL,
     longitude REAL
-
 );
 
 END IF;
@@ -46,7 +45,7 @@ IF NOT EXISTS (
 CREATE TABLE sample.weather_data
 (
     station_identifier VARCHAR(5) NOT NULL,
-    timestamp TIMESTAMPTZ NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
     quality_code SMALLINT,
     station_pressure REAL NULL,
     air_temperature_at_2m REAL NULL,
