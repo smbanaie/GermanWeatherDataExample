@@ -4,6 +4,7 @@
 :: Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 set PGSQL_EXECUTABLE="psql.exe"
+set CREATEDB_EXECUTABLE="createdb.exe"
 set STDOUT=stdout.log
 set STDERR=stderr.log
 set LOGFILE=query_output.log
@@ -33,7 +34,7 @@ if /i [%reply_%] NEQ [y]  (
 set /p PGPASSWORD="Password: "
 
 1>%STDOUT% 2>%STDERR% (
-
+    %CREATEDB_EXECUTABLE% -h %HostName% -p %PortNumber% -U %UserName% -O %UserName% %DatabaseName%
 	%PGSQL_EXECUTABLE% -h %HostName% -p %PortNumber% -d %DatabaseName% -U %UserName% < create_database.sql -L %LOGFILE%
     %PGSQL_EXECUTABLE% -h %HostName% -p %PortNumber% -d %DatabaseName% -U %UserName% < create_hypertable.sql -L %LOGFILE%
 )

@@ -18,8 +18,9 @@ namespace TimescaleExperiment.ConsoleApp
 {
     public class Program
     {
-        // The ConnectionString used to decide which database to connect to:
-        private static readonly string ConnectionString = @"Server=127.0.0.1;Port=5432;Database=sampledb;User Id=philipp;Password=test_pwd;";
+        // The ConnectionString used to decide which database to connect to. I decided to turn off the Npgsql built-in Connection Pooling, 
+        // because of undeterministic NullReferenceException, see https://github.com/npgsql/npgsql/issues/2257:
+        private static readonly string ConnectionString = @"Host=127.0.0.1;Port=5432;Database=sampledb;Pooling=false;User Id=philipp;Password=test_pwd;";
 
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
@@ -78,8 +79,10 @@ namespace TimescaleExperiment.ConsoleApp
         {
             log.Info($"Processing File: {csvFilePath}");
 
+            var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
+
             // Access to the List of Parsers:
-            var batches = Parsers
+            Parsers
                 // Use the LocalWeatherData Parser:
                 .LocalWeatherDataParser
                 // Read the File:
@@ -93,16 +96,16 @@ namespace TimescaleExperiment.ConsoleApp
                 // Sequential:
                 .AsEnumerable()
                 // Batch:
-                .Batch(80000);
-            
-            // Construct the Batch Processor:
-            var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
-
-            foreach (var batch in batches)
-            {
-                // Finally write them with the Batch Writer:
-                processor.Write(batch);
-            }
+                .Batch(30000)
+                // Go Parallel:
+                .AsParallel()
+                // Use all CPUs:
+                .WithDegreeOfParallelism(Environment.ProcessorCount)
+                // And process each batch:
+                .ForAll(batch =>
+                {
+                    processor.Write(batch);
+                });
         }
 
         private static string[] GetFilesFromFolder(string directory)

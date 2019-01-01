@@ -8,7 +8,7 @@ using TimescaleExperiment.Sql.Model;
 
 namespace TimescaleExperiment.Sql.Client
 {
-    public class StationBatchProcessor : IBatchProcessor<Station>
+    public class StationBatchProcessor
     {
         private readonly string connectionString;
 

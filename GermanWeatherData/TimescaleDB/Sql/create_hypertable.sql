@@ -17,7 +17,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 --
 -- Make sure to create the timescaledb Extension in the Schema:
 --
-PERFORM create_hypertable('sample.weather_data', 'timestamp');
+PERFORM create_hypertable('sample.weather_data', 'timestamp', chunk_target_size => '3GB');
 
 END
 
