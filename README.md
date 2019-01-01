@@ -4,7 +4,7 @@
 
 Going through a lot of pain has taught me, that you have to know about the capabilities and pitfalls of a technology, before putting it in production. These days it's all about "Big Data", but how well do technologies work when we actually throw realistic data at it? What knobs have to be turned to make the technologies scale? How far does a single machine take us?
 
-In the project I want to benchmark [TimescaleDB], [Elasticsearch], [SQL Server] and [InfluxDB] on the 10 Minute Weather Data for Germany.
+In the project I want to evaluate [TimescaleDB], [Elasticsearch], [SQL Server] and [InfluxDB] on the 10 Minute Weather Data for Germany.
 
 ## Dataset ##
 
@@ -12,7 +12,7 @@ The [DWD Open Data] portal of the [Deutscher Wetterdienst (DWD)] gives access to
 
 The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
-## Benchmark Setup ##
+## Experiment Setup ##
 
 * Intel® Core™ i5-3450 CPU
 * 16 GB RAM
