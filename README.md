@@ -14,109 +14,20 @@ The DWD dataset is given as CSV files and has a size of approximately 25.5 GB.
 
 ## Experiment Setup ##
 
-* Intel® Core™ i5-3450 CPU
-* 16 GB RAM
-* Samsung SSD 860 EVO ([Specifications](https://www.samsung.com/semiconductor/minisite/ssd/product/consumer/860evo/))
+TODO
 
 ## Status ##
 
 ### SQL Server 2017 ###
 
-The SQL Server 2017 was able to import the entire dataset. The final database has 406,242,465 measurements and a file 
-size of 12.6 GB. Nothing has been changed in the SQL Server configuration. More queries and performance analysis to follow!
-
-The import took 81.25 minutes, so the SQL Server was able to write 83,059 records per second.
+TODO
 
 ### TimescaleDB ###
 
-TimescaleDB was able to import the entire dataset. The final database has 406,241,469 measurements and has a file size 
-of 37 GB. Nothing had been changed in the TimescaleDB configuration. More queries and performance analysis to follow!
+TODO
 
-The import took 690.5 minutes, so TimescaleDB was able to write 9,804 records per second.
-
-#### timescaledb-tune ####
-
-[timescaledb-tune]: https://github.com/timescale/timescaledb-tune
-
-I thought it may be due to a misconfigured environment, so I used [timescaledb-tune] to optimize the ``postgresql.config``, 
-which set the ``postgresql.config`` to the following values:
-
-```
-#------------------------------------------------------------------------------
-# RESOURCE USAGE (except WAL)
-#------------------------------------------------------------------------------
-
-# - Memory -
-
-shared_buffers = 512MB
-work_mem = 67254kB
-maintenance_work_mem = 2034MB
-dynamic_shared_memory_type = windows
-
-# - Kernel Resource Usage -
-
-shared_preload_libraries = 'timescaledb'
-
-# - Asynchronous Behavior -
-
-max_worker_processes = 4		# (change requires restart)
-max_parallel_workers_per_gather = 2	# taken from max_parallel_workers
-max_parallel_workers = 4		# maximum number of max_worker_processes that
-
-#------------------------------------------------------------------------------
-# WRITE AHEAD LOG
-#------------------------------------------------------------------------------
-
-# - Settings -
-
-wal_level = hot_standby
-wal_buffers = 16MB
-
-# - Checkpoints -
-
-max_wal_size = 8GB
-min_wal_size = 4GB
-checkpoint_completion_target = 0.9	
-
-#------------------------------------------------------------------------------
-# QUERY TUNING
-#------------------------------------------------------------------------------
-
-# - Planner Cost Constants -
-
-random_page_cost = 1.1
-effective_cache_size = 12206MB
-```
-
-But this configuration didn't increase the throughput for TimescaleDB.
-
-#### Turning off synchronous commits ####
-
-[Disk-write settings]: https://docs.timescale.com/v1.0/getting-started/configuring#disk-write
-
-The TimescaleDB docs write on [Disk-write settings]
-
-> Disk-write settings
->
-> In order to increase write throughput, there are multiple settings to adjust the behaviour that PostgreSQL uses to write 
-> data to disk. We find the performance to be good with the default (safest) settings. If you want a bit of additional 
-> performance, you can set synchronous_commit = 'off'(PostgreSQL docs). Please note that when disabling ``sychronous_commit`` 
-> in this way, an operating system or database crash might result in some recent allegedly-committed transactions being 
-> lost. We actively discourage changing the ``fsync`` setting.
-
-So I decided to turn the ``synchronous_commit`` off by uncommenting the following line in the ``postgresql.config``:
-
-``synchronous_commit = off``
-
-With synchronous commits disabled the import took 247 minutes, so TimescaleDB was able to write 27,560 records per second.
 
 ### InfluxDB ###
-
-InfluxDB was able to import the entire dataset. The final database has 398,704,931 measurements and has a file size 
-of 7.91 GB. Please read below on the configuration changes necessary to make InfluxDB ingest the dataset. The difference 
-between the number of measurements for InfluxDB and TimescaleDB will be part of further investigation.
-
-The import took 147 minutes, so InfluxDB was able to write 45,112 records per second.
 
 InfluxDB 1.7.1 is unable to import the entire dataset without changes to the default configuration.  It consumes too much 
 RAM under load and could not write the batches anymore. After reading through documentation I am quite confident, that the 
@@ -147,13 +58,6 @@ cache-snapshot-write-cold-duration = "5s"
 [shard duration]: https://docs.influxdata.com/influxdb/v1.7/concepts/glossary/#shard-duration
 
 ### Elasticsearch ###
-
-Elasticsearch was able to import the entire dataset. The final database has ``406548765`` documents and has a file size 
-of ``52.9 GB``. Please read below on the the configuration changes necessary to make Elasticsearch ingest the dataset. The 
-difference in documents between TimescaleDB and Elasticsearch can be explained due to an accidental restart during the 
-first file import, this will be adjusted.
-
-The import took 718.9 minutes, so Elasticsearch was able to write 9,425 records per second.
 
 The default configuration of Elasticsearch 6.5.1 is not optimized for bulk loading large amounts of data into the 
 database. To improve the import for the initial load, the first I did was to disable indexing and replication by 
@@ -241,8 +145,6 @@ More information on Heap Sizing and Swapping can be found at:
 [Elasticsearch]: https://www.elastic.co/
 [SQL Server]: https://www.microsoft.com/de-de/sql-server/sql-server-2017
 [InfluxDB]: https://www.influxdata.com/
-
-
 [DWD Open Data]: https://opendata.dwd.de/
 [E-Government Act - EgovG]: http://www.gesetze-im-internet.de/englisch_egovg/index.html
 ["Open-Data-Gesetz" (§12a EGovG)]: https://www.bmi.bund.de/DE/themen/moderne-verwaltung/open-government/open-data/open-data-node.html
