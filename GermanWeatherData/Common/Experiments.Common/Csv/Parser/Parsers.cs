@@ -24,7 +24,12 @@ namespace Experiments.Common.Csv.Parser
         {
             get
             {
-                CsvParserOptions csvParserOptions = new CsvParserOptions(false, string.Empty, Tokenizers.LocalWeatherDataTokenizer, 1, false);
+                CsvParserOptions csvParserOptions = new CsvParserOptions(
+                    skipHeader: false, 
+                    commentCharacter: string.Empty, 
+                    tokenizer: Tokenizers.LocalWeatherDataTokenizer, 
+                    degreeOfParallelism: 1, 
+                    keepOrder: false);
 
                 return new CsvParser<LocalWeatherData>(csvParserOptions, new LocalWeatherDataMapper());
             }
