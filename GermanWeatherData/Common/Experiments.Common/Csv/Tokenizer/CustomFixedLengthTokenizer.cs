@@ -1,35 +1,79 @@
 ﻿// Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using TinyCsvParser.Tokenizer;
-using ColumnDefinition = TinyCsvParser.Tokenizer.FixedLengthTokenizer.ColumnDefinition;
 
 namespace Experiments.Common.Csv.Tokenizer
 {
+    /// <summary>
+    /// Implements a Tokenizer, that makes it possible to Tokenize a CSV line using fixed length columns.
+    /// </summary>
     public class CustomFixedLengthTokenizer : ITokenizer
     {
-        private readonly bool trim;
-        private readonly ITokenizer tokenizer;
-
-        public CustomFixedLengthTokenizer(ColumnDefinition[] columns, bool trim = true)
+        /// <summary>
+        /// A column in a CSV file, which is described by the start and end position (zero-based indices).
+        /// </summary>
+        public class Column
         {
-            this.tokenizer = new FixedLengthTokenizer(columns);
-            this.trim = trim;
+            public readonly int Start;
+
+            public readonly int End;
+
+            public Column(int start, int end)
+            {
+                Start = start;
+                End = end;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("ColumnDefinition (Start = {0}, End = {1}", Start, End);
+            }
+        }
+
+        public readonly Column[] Columns;
+
+        public CustomFixedLengthTokenizer(Column[] columns)
+        {
+            if (columns == null)
+            {
+                throw new ArgumentNullException("columns");
+            }
+            Columns = columns;
+        }
+
+        public CustomFixedLengthTokenizer(IList<Column> columns)
+        {
+            if (columns == null)
+            {
+                throw new ArgumentNullException("columns");
+            }
+            Columns = columns.ToArray();
         }
 
         public string[] Tokenize(string input)
         {
-            var tokens = tokenizer.Tokenize(input);
+            string[] tokenizedLine = new string[Columns.Length];
 
-            if (trim)
+            for (int columnIndex = 0; columnIndex < Columns.Length; columnIndex++)
             {
-                return tokens
-                    .Select(x => x.Trim())
-                    .ToArray();
+                var column = Columns[columnIndex];
+                var columnData = input.Substring(column.Start, column.End - column.Start);
+
+                tokenizedLine[columnIndex] = columnData.Trim();
             }
 
-            return tokens;
+            return tokenizedLine;
+        }
+
+        public override string ToString()
+        {
+            var columnDefinitionsString = string.Join(", ", Columns.Select(x => x.ToString()));
+
+            return string.Format("FixedLengthTokenizer (Columns = [{0}])", columnDefinitionsString);
         }
     }
 }

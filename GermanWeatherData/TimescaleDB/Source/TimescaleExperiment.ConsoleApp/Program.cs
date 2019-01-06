@@ -79,73 +79,62 @@ namespace TimescaleExperiment.ConsoleApp
 
         private static void ProcessLocalWeatherData(string[] csvFiles)
         {
-            var csvWeatherDataFiles = GetFilesFromFolder(@"D:\datasets\CDC");
-
             // Buffers the Batches to write to PostgreSQL, so we don't stall
             // writing the data, like previously seen during benchmarks:
             var queue = new BlockingCollection<IEnumerable<LocalWeatherData>>(50);
 
-            // This will kickoff 
-            Action producer = () =>
+            var consumer = Task.Run(() =>
             {
-                foreach (var csvWeatherDataFile in csvWeatherDataFiles)
+                // Now we begin to deque the elements by using the ConsumingEnumerable. This method 
+                // is ought to block, when there are no more elements left to read in the Queue:
+                var batches = queue.GetConsumingEnumerable();
+
+                // The Processor is safe to use, because each thread opens up a new connection. The 
+                // Npgsql Connection Pooling has been set to "false" to prevent any problems with 
+                // concurrency during Connection pooling and open a "fresh" connection for each 
+                // batch we write:
+                var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
+
+                // Iterate over the BlockingCollection and write each Batch to Postgres:
+                batches
+                    .AsParallel()
+                    .WithDegreeOfParallelism(4)
+                    .ForAll(batch => processor.Write(batch));
+            });
+
+            csvFiles
+                .AsParallel()
+                .WithDegreeOfParallelism(4)
+                .ForAll(file =>
                 {
-                    log.Info($"Processing File: {csvWeatherDataFile}");
+                    log.Info($"Processing File: {file}");
 
                     // Access to the List of Parsers:
                     var batches = Parsers
                         // Use the LocalWeatherData Parser:
                         .LocalWeatherDataParser
                         // Read the File:
-                        .ReadFromFile(csvWeatherDataFile, Encoding.UTF8, 1)
+                        .ReadFromFile(file, Encoding.UTF8, 1)
                         // Get the Valid Results:
                         .Where(x => x.IsValid)
                         // And get the populated Entities:
                         .Select(x => x.Result)
                         // Convert into the Sql Data Model:
                         .Select(x => LocalWeatherDataConverter.Convert(x))
-                        // Sequential:
-                        .AsEnumerable()
                         // Batch:
                         .Batch(80000);
 
-                    // This will run for a while and fill up the queue. If the queue is too 
-                    // full it will start blocking here and do not grow forever. This limits 
-                    // the memory from growing forever, if writing is too slow:
                     foreach (var batch in batches)
                     {
                         queue.Add(batch);
                     }
-                }
-                // Prevent the Queue from hanging forever by calling CompleteAdding:
-                queue.CompleteAdding();
-            };
+                });
 
-            // There are 4 CPU Cores in my machine, so let's limit the concurrency to
-            // the Processor Count. If we do not limit the concurrency, we will end 
-            // up with competing threads, that might slow down the process:
-            ThreadPool.SetMaxThreads(Environment.ProcessorCount, Environment.ProcessorCount);
+            // Prevent the Queue from hanging forever by calling CompleteAdding:
+            queue.CompleteAdding();
 
-            // Queue the Producer Thread to run in Background. It fills up the Working Queue, 
-            // which is ThreadSafe and Blocks, when the maximum of Elements has been added or 
-            // there are no more Elements left to read... until CompleteAdding is called:
-            ThreadPool.QueueUserWorkItem((state) => producer());
-
-            // Now we begin to deque the elements by using the ConsumingEnumerable. This method 
-            // is ought to block, when there are no more elements left to read in the Queue:
-            var items = queue.GetConsumingEnumerable();
-
-            // The Processor is safe to use, because each thread opens up a new connection. The 
-            // Npgsql Connection Pooling has been set to "false" to prevent any problems with 
-            // concurrency during Connection pooling and open a "fresh" connection for each 
-            // batch we write:
-            var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
-
-            // Iterate over the BlockingCollection and write each Batch to Postgres:
-            foreach (var item in items)
-            {
-                ThreadPool.QueueUserWorkItem((state) => { processor.Write(item); });
-            }
+            // Wait a Minute to stop consuming:
+            consumer.Wait(TimeSpan.FromMinutes(1));
         }
 
         private static string[] GetFilesFromFolder(string directory)
