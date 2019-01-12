@@ -79,28 +79,7 @@ namespace TimescaleExperiment.ConsoleApp
 
         private static void ProcessLocalWeatherData(string[] csvFiles)
         {
-            // Buffers the Batches to write to PostgreSQL, so we don't stall
-            // writing the data, like previously seen during benchmarks:
-            var queue = new BlockingCollection<IEnumerable<LocalWeatherData>>(50);
-
-            var consumer = Task.Run(() =>
-            {
-                // Now we begin to deque the elements by using the ConsumingEnumerable. This method 
-                // is ought to block, when there are no more elements left to read in the Queue:
-                var batches = queue.GetConsumingEnumerable();
-
-                // The Processor is safe to use, because each thread opens up a new connection. The 
-                // Npgsql Connection Pooling has been set to "false" to prevent any problems with 
-                // concurrency during Connection pooling and open a "fresh" connection for each 
-                // batch we write:
-                var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
-
-                // Iterate over the BlockingCollection and write each Batch to Postgres:
-                batches
-                    .AsParallel()
-                    .WithDegreeOfParallelism(4)
-                    .ForAll(batch => processor.Write(batch));
-            });
+            var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
 
             csvFiles
                 .AsParallel()
@@ -126,15 +105,9 @@ namespace TimescaleExperiment.ConsoleApp
 
                     foreach (var batch in batches)
                     {
-                        queue.Add(batch);
+                        processor.Write(batch);
                     }
                 });
-
-            // Prevent the Queue from hanging forever by calling CompleteAdding:
-            queue.CompleteAdding();
-
-            // Wait a Minute to stop consuming:
-            consumer.Wait(TimeSpan.FromMinutes(1));
         }
 
         private static string[] GetFilesFromFolder(string directory)
