@@ -14,7 +14,12 @@ namespace Experiments.Common.Csv.Parser
         {
             get
             {
-                CsvParserOptions csvParserOptions = new CsvParserOptions(false, string.Empty, Tokenizers.StationsTokenizer, 1, false);
+                CsvParserOptions csvParserOptions = new CsvParserOptions(
+                    skipHeader: false, 
+                    commentCharacter: string.Empty, 
+                    tokenizer: Tokenizers.StationsTokenizer,
+                    degreeOfParallelism: 1,
+                    keepOrder: false);
 
                 return new CsvParser<Station>(csvParserOptions, new StationMapper());
             }

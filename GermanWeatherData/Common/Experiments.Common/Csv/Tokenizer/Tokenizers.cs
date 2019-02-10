@@ -13,17 +13,17 @@ namespace Experiments.Common.Csv.Tokenizer
             {
                 var columns = new[]
                 {
-                    new CustomFixedLengthTokenizer.Column(0, 6),
-                    new CustomFixedLengthTokenizer.Column(6, 14),
-                    new CustomFixedLengthTokenizer.Column(15, 23),
-                    new CustomFixedLengthTokenizer.Column(32, 39),
-                    new CustomFixedLengthTokenizer.Column(43, 51),
-                    new CustomFixedLengthTokenizer.Column(52, 61),
-                    new CustomFixedLengthTokenizer.Column(61, 102),
-                    new CustomFixedLengthTokenizer.Column(102, 125),
+                    new FixedLengthTokenizer.ColumnDefinition(0, 6), 
+                    new FixedLengthTokenizer.ColumnDefinition(6, 14),
+                    new FixedLengthTokenizer.ColumnDefinition(15, 23),
+                    new FixedLengthTokenizer.ColumnDefinition(32, 39),
+                    new FixedLengthTokenizer.ColumnDefinition(43, 51),
+                    new FixedLengthTokenizer.ColumnDefinition(52, 61),
+                    new FixedLengthTokenizer.ColumnDefinition(61, 102),
+                    new FixedLengthTokenizer.ColumnDefinition(102, 125),
                 };
 
-                return new CustomFixedLengthTokenizer(columns);
+                return new FixedLengthTokenizer(columns, true);
             }
         }
 

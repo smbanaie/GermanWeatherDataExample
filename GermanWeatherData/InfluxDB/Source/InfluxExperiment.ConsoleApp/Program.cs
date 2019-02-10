@@ -32,7 +32,7 @@ namespace InfluxExperiment.ConsoleApp
             LogManager.Configuration = new XmlLoggingConfiguration("nlog.config");
 
             ProcessLocalWeatherData();
-
+            
             if (log.IsInfoEnabled)
             {
                 log.Info("Importing Data for Database weather_data has finished");
