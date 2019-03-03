@@ -25,7 +25,7 @@ namespace TimescaleExperiment.ConsoleApp
     {
         // The ConnectionString used to decide which database to connect to. I decided to turn off the Npgsql built-in Connection Pooling, 
         // because of undeterministic NullReferenceException, see https://github.com/npgsql/npgsql/issues/2257:
-        private static readonly string ConnectionString = @"Host=192.168.178.25;Port=5432;Database=sampledb;Pooling=false;User Id=philipp;Password=test_pwd;";
+        private static readonly string ConnectionString = @"Host=localhost;Port=5432;Database=sampledb;Pooling=false;User Id=philipp;Password=test_pwd;";
 
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
@@ -39,12 +39,12 @@ namespace TimescaleExperiment.ConsoleApp
             }
 
             // Import the Stations:
-            var csvStationDataFile = @"G:\Datasets\CDC\zehn_min_tu_Beschreibung_Stationen.txt";
+            var csvStationDataFile = @"D:\Datasets\CDC\zehn_min_tu_Beschreibung_Stationen.txt";
 
             ProcessStationData(csvStationDataFile);
 
             // Import 10 Minute CDC Weather Data:
-            var csvWeatherDataFiles = GetFilesFromFolder(@"G:\Datasets\CDC");
+            var csvWeatherDataFiles = GetFilesFromFolder(@"D:\Datasets\CDC");
 
             ProcessLocalWeatherData(csvWeatherDataFiles);
 
@@ -81,6 +81,9 @@ namespace TimescaleExperiment.ConsoleApp
         {
             var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
 
+            // Only import 2016
+            var startDate = new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(-20);
+
             csvFiles
                 .AsParallel()
                 .WithDegreeOfParallelism(4)
@@ -98,6 +101,7 @@ namespace TimescaleExperiment.ConsoleApp
                         .Where(x => x.IsValid)
                         // And get the populated Entities:
                         .Select(x => x.Result)
+                        .Where(x => x.TimeStamp >= startDate)
                         // Convert into the Sql Data Model:
                         .Select(x => LocalWeatherDataConverter.Convert(x))
                         // Batch:
