@@ -81,9 +81,6 @@ namespace TimescaleExperiment.ConsoleApp
         {
             var processor = new LocalWeatherDataBatchProcessor(ConnectionString);
 
-            // Only import 2016
-            var startDate = new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(-20);
-
             csvFiles
                 .AsParallel()
                 .WithDegreeOfParallelism(4)
@@ -101,7 +98,6 @@ namespace TimescaleExperiment.ConsoleApp
                         .Where(x => x.IsValid)
                         // And get the populated Entities:
                         .Select(x => x.Result)
-                        .Where(x => x.TimeStamp >= startDate)
                         // Convert into the Sql Data Model:
                         .Select(x => LocalWeatherDataConverter.Convert(x))
                         // Batch:
