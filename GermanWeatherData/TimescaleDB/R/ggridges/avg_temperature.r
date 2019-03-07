@@ -38,10 +38,10 @@ query <- read_file("D:\\github\\GermanWeatherDataExample\\GermanWeatherData\\Tim
 
 # Query the Database: 
 temperatures <- dbGetQuery(connection, query, param = list('01766', '2017-01-01', '2018-01-01'))
+
 temperatures$month <- trimws(temperatures$month)
 temperatures$month <- as.factor(temperatures$month)
-temperatures$month <- factor(temperatures$month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
-
+temperatures$month <- factor(temperatures$month, levels = c("December", "November", "October", "September", "August", "July", "June", "May", "April","March", "February", "January"))
 
 # Close Postgres Connection:
 dbDisconnect(connection)
